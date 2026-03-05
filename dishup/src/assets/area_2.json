@@ -1,0 +1,253 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.7040772,
+          -3.4618058,
+          0
+        ]
+      },
+      "properties": {
+        "name": "APIL1 LIK",
+        "description": "-3.4618, 114.70407",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#3b82f6",
+        "mapName": "Area Pengawasan 2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.703924963251,
+          -3.46146197989583,
+          18.499924
+        ]
+      },
+      "properties": {
+        "name": "APIL2 LIK",
+        "description": "-3.46146, 114.70392",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#3b82f6",
+        "mapName": "Area Pengawasan 2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.703717008233,
+          -3.46172299236059,
+          21.344498
+        ]
+      },
+      "properties": {
+        "name": "APIL3 LIK",
+        "description": "-3.46172, 114.70371",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#3b82f6",
+        "mapName": "Area Pengawasan 2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.7038814,
+          -3.4619034,
+          0
+        ]
+      },
+      "properties": {
+        "name": "APIL4 LIK",
+        "description": "-3.4619, 114.70388",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#3b82f6",
+        "mapName": "Area Pengawasan 2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.7698072,
+          -3.4327525,
+          0
+        ]
+      },
+      "properties": {
+        "name": "APILL BANDARA 1",
+        "description": "-3.43275, 114.7698",
+        "styleUrl": "#icon-1899-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#3b82f6",
+        "mapName": "Area Pengawasan 2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.7697795,
+          -3.4322072,
+          0
+        ]
+      },
+      "properties": {
+        "name": "APILL BANDARA 2",
+        "description": "-3.4322, 114.76977",
+        "styleUrl": "#icon-1899-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#3b82f6",
+        "mapName": "Area Pengawasan 2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.7703403,
+          -3.4325911,
+          0
+        ]
+      },
+      "properties": {
+        "name": "APILL BANDARA 3",
+        "description": "-3.43259, 114.77034",
+        "styleUrl": "#icon-1899-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#3b82f6",
+        "mapName": "Area Pengawasan 2"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.7705256,
+          -3.4321797,
+          0
+        ]
+      },
+      "properties": {
+        "name": "APILL BANDARA 4",
+        "description": "-3.43217, 114.77052",
+        "styleUrl": "#icon-1899-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#3b82f6",
+        "mapName": "Area Pengawasan 2"
+      }
+    }
+  ]
+}

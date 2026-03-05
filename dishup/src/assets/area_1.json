@@ -1,0 +1,2363 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.608138888889,
+          -3.34172222222222,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOOS 1 SD IT UKHUWAH BJM",
+        "description": "-3.34172, 114.60813",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.607416666667,
+          -3.34247222222222,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 2 SD IT UKHUWAH BJM",
+        "description": "-3.34247, 114.60741",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.6080875,
+          -3.344547,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 3 SMA IT UKHWAH BJM",
+        "description": "-3.34454, 114.60808",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.6083467,
+          -3.3456131,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 4 SMA IT UKHWAH BJM",
+        "description": "-3.34561, 114.60834",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.61565,
+          -3.3197,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 5 SMPN 7 BJM",
+        "styleUrl": "#icon-1899-DB4436-labelson-nodesc",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.6168238,
+          -3.3197847,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 6 SMPN 7 BJM",
+        "styleUrl": "#icon-1899-DB4436-labelson-nodesc",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.7362165,
+          -3.4520315,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 7 SDN 3 LANDASN ULIN TIMUR BJB",
+        "description": "-3.45203, 114.73621",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.7366964,
+          -3.4521965,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 8 SDN 3 LANDASAN ULIN TIMUR BJB",
+        "description": "-3.45219, 114.73669",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.8516052,
+          -3.4930554,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 9 SDN 1 CEMPAKA BJB",
+        "description": "-3.49305, 114.8516",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.8516095,
+          -3.4933939,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 10 SDN 1 CEMPAKA BJB",
+        "description": "-3.49339, 114.8516",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.8735145,
+          -3.4513869,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 11 SMPN 6 BJB",
+        "description": "-3.45138, 114.87351",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.8743453,
+          -3.4517252,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 12 SMPN 6 BJB",
+        "description": "-3.45172, 114.87434",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.9283734,
+          -3.4782346,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 13 SMAN 1 KARANG INTAN KAB.BANJAR",
+        "description": "-3.47823, 114.92837",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.9280301,
+          -3.4794311,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 14 SMAN 1 KARANG INTAN KAB.BANJAR",
+        "description": "-3.47943, 114.92803",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.9344661,
+          -3.4931131,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 15 MI MUHAMMADIYAH MANDIANGIN KAB.BANJAR",
+        "description": "-3.49311, 114.93446",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.9352577,
+          -3.4935763,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL. ZOSS 16 MI MUHAMMADIYAH MANDIANGIN KAB.BANJAR",
+        "description": "-3.49357, 114.93525",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.62850401178,
+          -3.3395020198077,
+          0.810242
+        ]
+      },
+      "properties": {
+        "name": "WL01",
+        "description": "-3.3395, 114.6285",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.6282720007,
+          -3.33301601931453,
+          11.830818
+        ]
+      },
+      "properties": {
+        "name": "WL02",
+        "description": "-3.33301, 114.62827",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.624687982723,
+          -3.32437695935368,
+          9.148472
+        ]
+      },
+      "properties": {
+        "name": "WL03",
+        "description": "-3.32437, 114.62468",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.62251204066,
+          -3.31957102753222,
+          7.177349
+        ]
+      },
+      "properties": {
+        "name": "WL04",
+        "description": "-3.31957, 114.62251",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.61805999279,
+          -3.31503599882126,
+          4.024532
+        ]
+      },
+      "properties": {
+        "name": "WL05",
+        "description": "-3.31503, 114.61805",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.600157001987,
+          -3.29342803917825,
+          19.094868
+        ]
+      },
+      "properties": {
+        "name": "WL06",
+        "description": "-3.29342, 114.60015",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.586511012167,
+          -3.30943001434207,
+          15.733288
+        ]
+      },
+      "properties": {
+        "name": "WL07",
+        "description": "-3.30943, 114.58651",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.58516202867,
+          -3.30881402827799,
+          12.469688
+        ]
+      },
+      "properties": {
+        "name": "WL08",
+        "description": "2025-02-13T04:39",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.580875020474,
+          -3.30671100877225,
+          16.005142
+        ]
+      },
+      "properties": {
+        "name": "WL09",
+        "description": "-3.30671, 114.58087",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.569530030712,
+          -3.30769102089107,
+          13.440868
+        ]
+      },
+      "properties": {
+        "name": "WL10",
+        "description": "-3.30769, 114.56953",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.594855029136,
+          -3.32056101411581,
+          29.275631
+        ]
+      },
+      "properties": {
+        "name": "WL11",
+        "description": "-3.32056, 114.59485",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.59085,
+          -3.289467,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL 12 BJM",
+        "description": "-3.28946, 114.59085",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.608040014282,
+          -3.33549798466265,
+          15.696476
+        ]
+      },
+      "properties": {
+        "name": "WL13",
+        "description": "-3.33549, 114.60804",
+        "styleUrl": "#icon-503-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.603933,
+          -3.29695,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL14",
+        "styleUrl": "#icon-1899-DB4436-labelson-nodesc",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.603067,
+          -3.2961,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL15",
+        "styleUrl": "#icon-1899-DB4436-labelson-nodesc",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.546607,
+          -3.20004,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL BATOLA 01",
+        "styleUrl": "#icon-1899-DB4436-labelson-nodesc",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.548676,
+          -3.203375,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL BATOLA 02",
+        "styleUrl": "#icon-1899-DB4436-labelson-nodesc",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.506868,
+          -3.154226,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL BATOLA 03",
+        "styleUrl": "#icon-1899-DB4436-labelson-nodesc",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.499823,
+          -3.146814,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL BATOLA 04",
+        "styleUrl": "#icon-1899-DB4436-labelson-nodesc",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.4994,
+          -3.146336,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL BATOLA 05",
+        "styleUrl": "#icon-1899-DB4436-labelson-nodesc",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.764152985066,
+          -3.24310996569693,
+          38.696064
+        ]
+      },
+      "properties": {
+        "name": "01 WL SIMPNG 4 KM 42 MENTEWE",
+        "description": "2025-02-24T02:07",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.763471033424,
+          -3.24287502095103,
+          43.472946
+        ]
+      },
+      "properties": {
+        "name": "02 WL SIMPNG 4 KM 42 MENTEWE",
+        "description": "2025-02-24T02:10",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.758296968415,
+          -3.26182398945093,
+          42.010082
+        ]
+      },
+      "properties": {
+        "name": "03 WL SIMPNG 3 TUGU TANI",
+        "description": "2025-02-24T02:45",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.7589846,
+          -3.2614837,
+          0
+        ]
+      },
+      "properties": {
+        "name": "04 WL SIMPANG 3 TUGU TANI",
+        "styleUrl": "#icon-503-DB4436-nodesc",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.009232960641,
+          -3.4104239847511,
+          18.273403
+        ]
+      },
+      "properties": {
+        "name": "05 WL BUNDARAN JHONLIN ARAH BANDARA",
+        "description": "2025-02-24T04:34",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.010983018205,
+          -3.41232198290527,
+          15.945057
+        ]
+      },
+      "properties": {
+        "name": "06 WL BUNDARAN JHONLIN ARAH BANDARA",
+        "description": "2025-02-24T04:26",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.010670959949,
+          -3.41057200916112,
+          31.830353
+        ]
+      },
+      "properties": {
+        "name": "07 WL SIMPANG 3 BUNDARAN JHONLIN",
+        "description": "2025-02-24T05:30",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.011308990419,
+          -3.41237696819007,
+          19.838966
+        ]
+      },
+      "properties": {
+        "name": "08 WL SIMPANG 3 BUNDARAN JHONLIN",
+        "description": "2025-02-24T05:33",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.004385035485,
+          -3.36095399223268,
+          30.813988
+        ]
+      },
+      "properties": {
+        "name": "09 SIMPANG 4 BAMAS",
+        "description": "2025-02-24T05:13",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.005009990185,
+          -3.3610460255295,
+          26.128937
+        ]
+      },
+      "properties": {
+        "name": "10 SIMPANG 4 BAMAS",
+        "description": "2025-02-24T05:17",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.996655998752,
+          -3.4644340351224,
+          18.330074
+        ]
+      },
+      "properties": {
+        "name": "11 SIMPANG 3 JL BKW MENUJU JL NASIONAL",
+        "description": "2025-02-24T05:52",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.971260005608,
+          -3.4495500382036,
+          21.363358
+        ]
+      },
+      "properties": {
+        "name": "12 SIMPANG 3 JL. BKW MENUJU JALAN NASIONAL",
+        "description": "2025-02-24T06:06",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.075803017244,
+          -2.93133200146258,
+          9.075726
+        ]
+      },
+      "properties": {
+        "name": "WL1TPN",
+        "description": "2025-04-08T07:08",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.075352992862,
+          -2.93068701401353,
+          8.425236
+        ]
+      },
+      "properties": {
+        "name": "WL2TPN",
+        "description": "2025-04-08T07:13",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.03006095998,
+          -2.86645598709583,
+          7.074749
+        ]
+      },
+      "properties": {
+        "name": "WL3TPN",
+        "description": "2025-04-08T07:30",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.029558967799,
+          -2.86529802717269,
+          9.552498
+        ]
+      },
+      "properties": {
+        "name": "WL4TPN",
+        "description": "2025-04-08T07:35",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.091031007469,
+          -3.16492902114987,
+          25.185196
+        ]
+      },
+      "properties": {
+        "name": "WL5TPN",
+        "description": "2025-04-09T13:17",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.090413009748,
+          -3.16628596745431,
+          32.979786
+        ]
+      },
+      "properties": {
+        "name": "WL6TPN",
+        "description": "2025-04-09T13:21",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.418132,
+          -2.813188,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL 1 HSS",
+        "styleUrl": "#icon-1899-DB4436-nodesc",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.415501,
+          -2.813398,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL 2 HSS",
+        "styleUrl": "#icon-1899-DB4436-nodesc",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.100955,
+          -2.603706,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL 3 HSS",
+        "styleUrl": "#icon-1899-DB4436-nodesc",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.100444,
+          -2.60483,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL 4 HSS",
+        "styleUrl": "#icon-1899-DB4436-nodesc",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.450489008799,
+          -2.79736496508121,
+          129.300034
+        ]
+      },
+      "properties": {
+        "name": "WL5HSS",
+        "description": "2025-04-08T10:41",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.450241994113,
+          -2.7955490257591,
+          124.980057
+        ]
+      },
+      "properties": {
+        "name": "WL6HSS",
+        "description": "2025-04-08T10:47",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.395270958543,
+          -2.12647701613605,
+          27.091671
+        ]
+      },
+      "properties": {
+        "name": "WLTBLG1",
+        "description": "2025-04-09T02:52",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.396009990945,
+          -2.12566799484193,
+          27.091965
+        ]
+      },
+      "properties": {
+        "name": "WLTBLG2",
+        "description": "2025-04-09T02:56",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.455328971148,
+          -2.04436403699219,
+          27.883297
+        ]
+      },
+      "properties": {
+        "name": "WLTBLG3",
+        "description": "2025-04-09T03:21",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.454316018149,
+          -2.04501598142088,
+          29.290222
+        ]
+      },
+      "properties": {
+        "name": "WLTBLG4",
+        "description": "2025-04-09T03:29",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.454505030066,
+          -2.04688900150359,
+          31.270561
+        ]
+      },
+      "properties": {
+        "name": "WLTBLG5",
+        "description": "2025-04-09T03:35",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.55939398706,
+          -2.00606301426888,
+          54.014069
+        ]
+      },
+      "properties": {
+        "name": "WLTBLG6",
+        "description": "2025-04-09T04:42",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.553083000705,
+          -2.00667103752494,
+          48.664864
+        ]
+      },
+      "properties": {
+        "name": "WLTBLG7",
+        "description": "2025-04-09T04:56",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.545501988381,
+          -2.01379297301173,
+          47.000294
+        ]
+      },
+      "properties": {
+        "name": "WLTBLG8",
+        "description": "2025-04-09T05:01",
+        "styleUrl": "#icon-503-DB4436",
+        "label-scale": 0,
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1.1,
+        "icon-offset": [
+          16,
+          32
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.612155,
+          -3.309444,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 1 BJM SMPN 14 BJM",
+        "description": "-3.309444, 114.612155",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.611868,
+          -3.308664,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 2 BJM SMPN 14 BJM",
+        "description": "-3.308664, 114.611868",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.619363,
+          -3.234698,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 3 BATOLA SMPN 2 ALALAK",
+        "description": "-3.234698, 114.619363",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.619807,
+          -3.234136,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 4 BATOLA SMPN 2 ALALAK",
+        "description": "-3.234136, 114.619807",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.543543,
+          -3.196015,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 5 BATOLA MIN 3 BATOLA",
+        "description": "-3.196015, 114.543543",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.543069,
+          -3.195416,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 6 BATOLA MIN 3 BATOLA",
+        "description": "-3.195416, 114.543069",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.766258,
+          -2.982551,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 7 BATOLA SMAN 1 MARABHAN",
+        "description": "-2.982551, 114.766258",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.766651,
+          -2.981834,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 8 BATOLA SMAN 1 MARABAHAN",
+        "description": "-2.981834, 114.766651",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.708719,
+          -3.073759,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 9 BATOLA SMPN 1 RANTAU BEDAUH",
+        "description": "-3.073759, 114.708719",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          114.707662,
+          -3.074578,
+          0
+        ]
+      },
+      "properties": {
+        "name": "WL ZOSS 10 BATOLA SMPN 1 RANTAU BEDAUH",
+        "description": "-3.074578, 114.707662",
+        "styleUrl": "#icon-1899-DB4436-labelson",
+        "icon-opacity": 1,
+        "icon-color": "#db4436",
+        "icon-scale": 1,
+        "icon-offset": [
+          32,
+          64
+        ],
+        "icon-offset-units": [
+          "pixels",
+          "insetPixels"
+        ],
+        "icon": "https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png",
+        "color": "#ef4444",
+        "mapName": "Area Pengawasan 1"
+      }
+    }
+  ]
+}

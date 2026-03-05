@@ -1,0 +1,165 @@
+/* ============================= */
+/*       SIDEBAR ENHANCEMENTS    */
+/* ============================= */
+
+.sidebar-custom {
+  background: linear-gradient(180deg, #1e293b, #0f172a);
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.sidebar-custom .nav-link {
+  color: #f8f9fa;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-custom .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateX(6px);
+  color: #fff;
+}
+
+/* Tombol Logout */
+.sidebar-custom .logout-btn {
+  background-color: #dc3545;
+  border-radius: 8px;
+  padding: 12px;
+  display: block;
+  text-align: center;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.sidebar-custom .logout-btn:hover {
+  background-color: #bb2d3b;
+}
+
+/* ============================= */
+/*        TABLE HOVER EFFECT     */
+/* ============================= */
+
+.table-hover tbody tr:hover {
+  transform: scale(1.01);
+  background-color: #f8fafc !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+/* ============================= */
+/*         CARD EFFECTS          */
+/* ============================= */
+
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Statistik Cards */
+.stat-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-radius: 12px;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+}
+
+/* Menu Cards */
+.menu-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  border-radius: 12px;
+}
+
+.menu-card:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.22);
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+/* ============================= */
+/*   FIX FINAL: SIDEBAR TEXT     */
+/* ============================= */
+
+.sidebar-custom ul.nav li a,
+.sidebar-custom ul.nav li .nav-link,
+.sidebar-custom a,
+.sidebar-custom .nav-link {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.sidebar-custom ul.nav li a:hover,
+.sidebar-custom .nav-link:hover {
+  color: #e2e8f0 !important;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.sidebar-custom .active-menu,
+.sidebar-custom .active-menu a,
+.sidebar-custom a.active {
+  color: #4da3ff !important;
+  font-weight: bold !important;
+}
+
+/* ============================= */
+/*          PRINT MODE           */
+/* ============================= */
+/* 🔥 INI SATU-SATUNYA PRINT CSS */
+/* ============================= */
+
+@media print {
+
+  /* 1. Sembunyikan semua elemen */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* 2. Tampilkan hanya area laporan */
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+
+  /* 3. Posisi laporan di kertas */
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+    background: white;
+  }
+
+  /* 4. Hilangkan elemen dashboard */
+  nav,
+  aside,
+  header,
+  footer,
+  .sidebar-custom,
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  /* 5. Tabel rapi saat print */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12px;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+}
