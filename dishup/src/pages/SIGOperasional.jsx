@@ -1,11 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, LayersControl, FeatureGroup, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
-import tilangDataRaw from '../assets/tilang_data.json';
 import area1Data from '../assets/area_1.json';
 import area2Data from '../assets/area_2.json';
 
@@ -40,6 +39,13 @@ const icons = {
     DEFAULT: createMarkerIcon('violet')
 };
 
+const pjuIcons = {
+    Rusak: createMarkerIcon('red'),
+    Proses: createMarkerIcon('orange'),
+    Selesai: createMarkerIcon('green'),
+    DEFAULT: createMarkerIcon('grey')
+};
+
 const COLORS = ['#0088FE', '#FF8042', '#FFBB28', '#00C49F'];
 
 export default function SIGOperasional() {
@@ -51,17 +57,56 @@ export default function SIGOperasional() {
     const [filterWilayah, setFilterWilayah] = useState('Semua');
     const [filterTahun, setFilterTahun] = useState('Semua');
 
+    const [dbData, setDbData] = useState([]);
+    const [dbPjuData, setDbPjuData] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const res = await fetch('http://localhost/DISHUP_S/dishup/api/tilang.php');
+                const json = await res.json();
+                if (json.status === 'success') {
+                    setDbData(json.data);
+                }
+
+                // Fetch PJU Data
+                const resPju = await fetch('http://localhost/DISHUP_S/dishup/api/pju_rusak.php');
+                const jsonPju = await resPju.json();
+                if (jsonPju.status === 'success') {
+                    setDbPjuData(jsonPju.data);
+                }
+
+            } catch (error) {
+                console.error("Gagal mengambil data dari API", error);
+            }
+        };
+        fetchData();
+    }, []);
+
     // Menderivasi Data Categories (KIR, Overdimensi, dll)
     const tilangData = useMemo(() => {
-        return tilangDataRaw.map(item => {
+        return dbData.map(item => {
             let kategori = 'KIR';
-            if (item.pelanggaran.toLowerCase().includes('dimensi') || item.pelanggaran.toLowerCase().includes('muatan')) {
+            const pelanggaranStr = (item.jenis_pelanggaran || '').toLowerCase();
+            if (pelanggaranStr.includes('dimensi') || pelanggaranStr.includes('muatan') || pelanggaranStr.includes('beban')) {
                 // Sengaja dimasukkan gabungan jika ada KIR & Dimensi
-                kategori = item.pelanggaran.toLowerCase().includes('kir') ? 'GABUNGAN' : 'OVERDIMENSI';
+                kategori = pelanggaranStr.includes('kir') ? 'GABUNGAN' : 'OVERDIMENSI';
+            } else if (!pelanggaranStr.includes('kir')) {
+                kategori = 'DEFAULT';
             }
-            return { ...item, kategori };
+
+            return {
+                ...item,
+                kategori,
+                pelanggaran: item.jenis_pelanggaran,
+                pasal: item.keterangan || '-',
+                nama: 'Pelanggar',
+                kendaraan: '-',
+                nopol: '-',
+                tahun: item.tanggal ? item.tanggal.substring(0, 4) : '2024'
+            };
         });
-    }, []);
+    }, [dbData]);
 
     // Filtered Data
     const filteredData = useMemo(() => {
@@ -228,20 +273,42 @@ export default function SIGOperasional() {
                                         </LayersControl.BaseLayer>
 
                                         {/* Titik Penilangan */}
-                                        <LayersControl.Overlay checked name="Titik Pelanggaran">
+                                        <LayersControl.Overlay checked name="Titik Pelanggaran Tilang">
                                             <FeatureGroup>
                                                 {filteredData.map((tilang) => (
-                                                    <Marker key={tilang.id} position={[tilang.lat, tilang.lng]} icon={icons[tilang.kategori] || icons.DEFAULT}>
+                                                    <Marker key={`tilang-${tilang.id}`} position={[tilang.lat, tilang.lng]} icon={icons[tilang.kategori] || icons.DEFAULT}>
                                                         <Popup>
                                                             <div style={{ minWidth: '220px', fontFamily: 'sans-serif' }}>
                                                                 <div className={`badge bg-${tilang.kategori === 'KIR' ? 'primary' : tilang.kategori === 'OVERDIMENSI' ? 'danger' : 'warning text-dark'} mb-2`}>
-                                                                    {tilang.kategori}
+                                                                    Tilang: {tilang.kategori}
                                                                 </div>
                                                                 <h6 className="fw-bold border-bottom pb-1 mb-2 text-dark">{tilang.nama}</h6>
                                                                 <div className="mb-1 small"><strong>Area:</strong> {tilang.lokasi}</div>
                                                                 <div className="mb-1 small"><strong>Kendaraan:</strong> {tilang.kendaraan} <span className="text-muted">({tilang.nopol})</span></div>
                                                                 <div className="mb-1 small"><strong>Detail:</strong> {tilang.pelanggaran}</div>
                                                                 <div className="mb-0 small"><strong>Pasal:</strong> {tilang.pasal}</div>
+                                                            </div>
+                                                        </Popup>
+                                                    </Marker>
+                                                ))}
+                                            </FeatureGroup>
+                                        </LayersControl.Overlay>
+
+                                        {/* Titik PJU Rusak */}
+                                        <LayersControl.Overlay checked name="Titik PJU Rusak">
+                                            <FeatureGroup>
+                                                {dbPjuData.filter(d => d.lat && d.lng).map((pju) => (
+                                                    <Marker key={`pju-${pju.id}`} position={[pju.lat, pju.lng]} icon={pjuIcons[pju.status] || pjuIcons.DEFAULT}>
+                                                        <Popup>
+                                                            <div style={{ minWidth: '220px', fontFamily: 'sans-serif' }}>
+                                                                <div className={`badge bg-${pju.status === 'Selesai' ? 'success' : pju.status === 'Proses' ? 'warning text-dark' : 'danger'} mb-2`}>
+                                                                    PJU: {pju.status}
+                                                                </div>
+                                                                <h6 className="fw-bold border-bottom pb-1 mb-2 text-dark">{pju.lokasi}</h6>
+                                                                <div className="mb-1 small"><strong>Wilayah:</strong> {pju.wilayah}</div>
+                                                                <div className="mb-1 small text-danger fw-bold"><strong>Kerusakan:</strong> {pju.jenis_kerusakan}</div>
+                                                                <div className="mb-1 small"><strong>Dilaporkan:</strong> {pju.tanggal_laporan}</div>
+                                                                {pju.petugas && <div className="mb-0 small"><strong>Petugas:</strong> {pju.petugas}</div>}
                                                             </div>
                                                         </Popup>
                                                     </Marker>

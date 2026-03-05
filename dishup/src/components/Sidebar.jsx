@@ -33,7 +33,10 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
 
     const adminSuratItems = [
         { path: "/laporan-pju", label: "Data PJU (SIG)" },
+        { path: "/laporan-pju-rusak", label: "Manajemen PJU Rusak" },
         { path: "/laporan-tilang", label: "Data Tilang" },
+        { path: "/laporan-analisis-tilang", label: "Analisis Lokasi Tilang" },
+        { path: "/laporan-analisis-pju", label: "Analisis PJU & Tilang" },
         { path: "/laporan/surat-tugas", label: "Surat Tugas" },
         { path: "/laporan/surat-permohonan", label: "Surat Permohonan" },
         { path: "/laporan/surat-undangan", label: "Surat Undangan" },

@@ -35,6 +35,12 @@ import LaporanDataPJU from './pages/laporan/LaporanDataPJU';
 import PrintLaporanPJU from './pages/printsurat/PrintLaporanPJU';
 import LaporanDataTilang from './pages/laporan/LaporanDataTilang';
 import PrintLaporanTilang from './pages/printsurat/PrintLaporanTilang';
+import LaporanPJURusak from './pages/laporan/LaporanPJURusak';
+import PrintLaporanPJURusak from './pages/printsurat/PrintLaporanPJURusak';
+import LaporanAnalisisPJU from './pages/laporan/LaporanAnalisisPJU';
+import PrintLaporanAnalisisPJU from './pages/printsurat/PrintLaporanAnalisisPJU';
+import LaporanAnalisisTilang from './pages/laporan/LaporanAnalisisTilang';
+import PrintLaporanAnalisisTilang from './pages/printsurat/PrintLaporanAnalisisTilang';
 // ✅ import Toastify
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -76,6 +82,12 @@ function App() {
           <Route path="/print/laporan-pju" element={<AdminRoute><PrintLaporanPJU /></AdminRoute>} />
           <Route path="/laporan-tilang" element={<AdminRoute><LaporanDataTilang /></AdminRoute>} />
           <Route path="/print/laporan-tilang" element={<AdminRoute><PrintLaporanTilang /></AdminRoute>} />
+          <Route path="/laporan-pju-rusak" element={<AdminRoute><LaporanPJURusak /></AdminRoute>} />
+          <Route path="/print/laporan-pju-rusak" element={<AdminRoute><PrintLaporanPJURusak /></AdminRoute>} />
+          <Route path="/laporan-analisis-pju" element={<AdminRoute><LaporanAnalisisPJU /></AdminRoute>} />
+          <Route path="/print/laporan-analisis-pju" element={<AdminRoute><PrintLaporanAnalisisPJU /></AdminRoute>} />
+          <Route path="/laporan-analisis-tilang" element={<AdminRoute><LaporanAnalisisTilang /></AdminRoute>} />
+          <Route path="/print/laporan-analisis-tilang" element={<AdminRoute><PrintLaporanAnalisisTilang /></AdminRoute>} />
           <Route path="/laporan/surat-undangan" element={<AdminRoute><LaporanSuratUndangan /></AdminRoute>} />
           <Route path="/print/surat-undangan/:id" element={<PrintSuratUndangan />} />
           <Route path="/laporan/distribusi-dokumen" element={<LaporanDistribusiDokumen />} />
