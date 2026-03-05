@@ -37,6 +37,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
         { path: "/laporan-tilang", label: "Data Tilang" },
         { path: "/laporan-analisis-tilang", label: "Analisis Lokasi Tilang" },
         { path: "/laporan-analisis-pju", label: "Analisis PJU & Tilang" },
+        { path: "/laporan-infrastruktur-terburuk", label: "Infrastruktur Terburuk" },
         { path: "/laporan/surat-tugas", label: "Surat Tugas" },
         { path: "/laporan/surat-permohonan", label: "Surat Permohonan" },
         { path: "/laporan/surat-undangan", label: "Surat Undangan" },
@@ -44,6 +45,8 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
         { path: "/laporan/keamanan-data", label: "Keamanan Data" },
         { path: "/laporan/respons-akses", label: "Respons Akses" },
         { path: "/laporan/efisiensi-surat", label: "Efisiensi Surat" },
+        { path: "/laporan-audit-keamanan", label: "Audit Keamanan Sistem" },
+        { path: "/laporan-lokasi-prioritas", label: "Lokasi Prioritas PJU" },
     ];
 
     const adminItems = [

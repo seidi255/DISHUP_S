@@ -6,9 +6,8 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        // Read All Tilang
         try {
-            $stmt = $pdo->query("SELECT * FROM tbl_tilang ORDER BY id DESC");
+            $stmt = $pdo->query("SELECT * FROM tbl_wilayah_prioritas ORDER BY id DESC");
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode(['status' => 'success', 'data' => $data]);
         } catch (PDOException $e) {
@@ -18,31 +17,31 @@ switch ($method) {
         break;
 
     case 'POST':
-        // Create new Tilang
         $input = json_decode(file_get_contents('php://input'), true);
 
-        if (!isset($input['lokasi']) || !isset($input['jenis_pelanggaran']) || !isset($input['tanggal']) || !isset($input['wilayah'])) {
+        if (!isset($input['wilayah']) || !isset($input['kecamatan']) || !isset($input['kabupaten'])) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Data tidak lengkap']);
             exit;
         }
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO tbl_tilang (lokasi, wilayah, jenis_pelanggaran, tanggal, keterangan, lat, lng) VALUES (:lokasi, :wilayah, :jenis_pelanggaran, :tanggal, :keterangan, :lat, :lng)");
+            $stmt = $pdo->prepare("INSERT INTO tbl_wilayah_prioritas (wilayah, kecamatan, kabupaten, status_pju, tingkat_prioritas, lat, lng, keterangan) VALUES (:wilayah, :kecamatan, :kabupaten, :status_pju, :tingkat_prioritas, :lat, :lng, :keterangan)");
             $stmt->execute([
-                ':lokasi' => $input['lokasi'],
                 ':wilayah' => $input['wilayah'],
-                ':jenis_pelanggaran' => $input['jenis_pelanggaran'],
-                ':tanggal' => $input['tanggal'],
-                ':keterangan' => $input['keterangan'] ?? '',
+                ':kecamatan' => $input['kecamatan'],
+                ':kabupaten' => $input['kabupaten'],
+                ':status_pju' => $input['status_pju'] ?? 'Tidak Ada',
+                ':tingkat_prioritas' => $input['tingkat_prioritas'] ?? 'Sedang',
                 ':lat' => isset($input['lat']) ? $input['lat'] : null,
-                ':lng' => isset($input['lng']) ? $input['lng'] : null
+                ':lng' => isset($input['lng']) ? $input['lng'] : null,
+                ':keterangan' => $input['keterangan'] ?? ''
             ]);
 
             $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
-            insertLog($pdo, null, null, 'Perubahan Data', 'Menampah Data Tilang', 'Insert', 'Data Tilang', 'Berhasil', $ip);
+            insertLog($pdo, null, null, 'Perubahan Data', 'Menampah Wilayah Prioritas PJU (' . $input['wilayah'] . ')', 'Insert', 'Wilayah Prioritas', 'Berhasil', $ip);
 
-            echo json_encode(['status' => 'success', 'message' => 'Data tilang berhasil ditambahkan', 'id' => $pdo->lastInsertId()]);
+            echo json_encode(['status' => 'success', 'message' => 'Data wilayah prioritas berhasil ditambahkan', 'id' => $pdo->lastInsertId()]);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -50,7 +49,6 @@ switch ($method) {
         break;
 
     case 'PUT':
-        // Update existing Tilang
         $input = json_decode(file_get_contents('php://input'), true);
 
         if (!isset($input['id'])) {
@@ -60,22 +58,23 @@ switch ($method) {
         }
 
         try {
-            $stmt = $pdo->prepare("UPDATE tbl_tilang SET lokasi=:lokasi, wilayah=:wilayah, jenis_pelanggaran=:jenis_pelanggaran, tanggal=:tanggal, keterangan=:keterangan, lat=:lat, lng=:lng WHERE id=:id");
+            $stmt = $pdo->prepare("UPDATE tbl_wilayah_prioritas SET wilayah=:wilayah, kecamatan=:kecamatan, kabupaten=:kabupaten, status_pju=:status_pju, tingkat_prioritas=:tingkat_prioritas, lat=:lat, lng=:lng, keterangan=:keterangan WHERE id=:id");
             $stmt->execute([
                 ':id' => $input['id'],
-                ':lokasi' => $input['lokasi'],
                 ':wilayah' => $input['wilayah'],
-                ':jenis_pelanggaran' => $input['jenis_pelanggaran'],
-                ':tanggal' => $input['tanggal'],
-                ':keterangan' => $input['keterangan'] ?? '',
+                ':kecamatan' => $input['kecamatan'],
+                ':kabupaten' => $input['kabupaten'],
+                ':status_pju' => $input['status_pju'],
+                ':tingkat_prioritas' => $input['tingkat_prioritas'],
                 ':lat' => isset($input['lat']) ? $input['lat'] : null,
-                ':lng' => isset($input['lng']) ? $input['lng'] : null
+                ':lng' => isset($input['lng']) ? $input['lng'] : null,
+                ':keterangan' => $input['keterangan'] ?? ''
             ]);
 
             $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
-            insertLog($pdo, null, null, 'Perubahan Data', 'Update Data Tilang (ID: ' . $input['id'] . ')', 'Update', 'Data Tilang', 'Berhasil', $ip);
+            insertLog($pdo, null, null, 'Perubahan Data', 'Update Wilayah Prioritas (ID: ' . $input['id'] . ')', 'Update', 'Wilayah Prioritas', 'Berhasil', $ip);
 
-            echo json_encode(['status' => 'success', 'message' => 'Data tilang berhasil diupdate']);
+            echo json_encode(['status' => 'success', 'message' => 'Data wilayah prioritas berhasil diupdate']);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -83,10 +82,8 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        // Delete Tilang
         $id = $_GET['id'] ?? null;
         if (!$id) {
-            // Coba ambil dari body
             $input = json_decode(file_get_contents('php://input'), true);
             $id = $input['id'] ?? null;
         }
@@ -98,13 +95,13 @@ switch ($method) {
         }
 
         try {
-            $stmt = $pdo->prepare("DELETE FROM tbl_tilang WHERE id=:id");
+            $stmt = $pdo->prepare("DELETE FROM tbl_wilayah_prioritas WHERE id=:id");
             $stmt->execute([':id' => $id]);
 
             $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
-            insertLog($pdo, null, null, 'Perubahan Data', 'Hapus Data Tilang (ID: ' . $id . ')', 'Delete', 'Data Tilang', 'Berhasil', $ip);
+            insertLog($pdo, null, null, 'Perubahan Data', 'Hapus Wilayah Prioritas (ID: ' . $id . ')', 'Delete', 'Wilayah Prioritas', 'Berhasil', $ip);
 
-            echo json_encode(['status' => 'success', 'message' => 'Data tilang berhasil dihapus']);
+            echo json_encode(['status' => 'success', 'message' => 'Data wilayah prioritas berhasil dihapus']);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);

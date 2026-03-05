@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'log_helper.php';
 
 // Membaca json body request dari React
 $data = json_decode(file_get_contents("php://input"));
@@ -107,6 +108,10 @@ switch ($action) {
                 ];
                 $access_token = base64_encode(json_encode($session_data));
 
+                // Insert Log Login Berhasil
+                $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+                insertLog($pdo, $user['id'], $user['email'], 'Login', 'Login Sistem', 'Login', 'Sistem', 'Berhasil', $ip);
+
                 echo json_encode([
                     "status" => "success",
                     "data" => [
@@ -129,6 +134,10 @@ switch ($action) {
                     ]
                 ]);
             } else {
+                // Insert Log Login Gagal
+                $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+                insertLog($pdo, null, $email, 'Login', 'Gagal Login', 'Login', 'Sistem', 'Gagal', $ip);
+
                 http_response_code(401);
                 echo json_encode(["status" => "error", "message" => "Invalid email or password"]);
             }

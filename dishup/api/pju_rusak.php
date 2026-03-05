@@ -1,5 +1,6 @@
 <?php
 require_once 'config.php';
+require_once 'log_helper.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -82,6 +83,10 @@ switch ($method) {
                 ':lat' => isset($input['lat']) ? $input['lat'] : null,
                 ':lng' => isset($input['lng']) ? $input['lng'] : null
             ]);
+
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+            insertLog($pdo, null, null, 'Perubahan Data', 'Menampah PJU Rusak', 'Insert', 'PJU Rusak', 'Berhasil', $ip);
+
             echo json_encode(['status' => 'success', 'message' => 'Data PJU Rusak berhasil ditambahkan', 'id' => $pdo->lastInsertId()]);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -114,6 +119,10 @@ switch ($method) {
                 ':lat' => isset($input['lat']) ? $input['lat'] : null,
                 ':lng' => isset($input['lng']) ? $input['lng'] : null
             ]);
+
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+            insertLog($pdo, null, null, 'Perubahan Data', 'Update PJU Rusak (ID: ' . $input['id'] . ')', 'Update', 'PJU Rusak', 'Berhasil', $ip);
+
             echo json_encode(['status' => 'success', 'message' => 'Data PJU Rusak berhasil diupdate']);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -138,6 +147,10 @@ switch ($method) {
         try {
             $stmt = $pdo->prepare("DELETE FROM tbl_pju_rusak WHERE id=:id");
             $stmt->execute([':id' => $id]);
+
+            $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+            insertLog($pdo, null, null, 'Perubahan Data', 'Hapus PJU Rusak (ID: ' . $id . ')', 'Delete', 'PJU Rusak', 'Berhasil', $ip);
+
             echo json_encode(['status' => 'success', 'message' => 'Data PJU Rusak berhasil dihapus']);
         } catch (PDOException $e) {
             http_response_code(500);

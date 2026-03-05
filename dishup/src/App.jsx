@@ -41,6 +41,12 @@ import LaporanAnalisisPJU from './pages/laporan/LaporanAnalisisPJU';
 import PrintLaporanAnalisisPJU from './pages/printsurat/PrintLaporanAnalisisPJU';
 import LaporanAnalisisTilang from './pages/laporan/LaporanAnalisisTilang';
 import PrintLaporanAnalisisTilang from './pages/printsurat/PrintLaporanAnalisisTilang';
+import LaporanInfrastrukturTerburuk from './pages/laporan/LaporanInfrastrukturTerburuk';
+import PrintLaporanInfrastrukturTerburuk from './pages/printsurat/PrintLaporanInfrastrukturTerburuk';
+import LaporanAuditKeamanan from './pages/laporan/LaporanAuditKeamanan';
+import PrintLaporanAuditKeamanan from './pages/printsurat/PrintLaporanAuditKeamanan';
+import LaporanLokasiPrioritas from './pages/laporan/LaporanLokasiPrioritas';
+import PrintLaporanLokasiPrioritas from './pages/printsurat/PrintLaporanLokasiPrioritas';
 // ✅ import Toastify
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -88,6 +94,12 @@ function App() {
           <Route path="/print/laporan-analisis-pju" element={<AdminRoute><PrintLaporanAnalisisPJU /></AdminRoute>} />
           <Route path="/laporan-analisis-tilang" element={<AdminRoute><LaporanAnalisisTilang /></AdminRoute>} />
           <Route path="/print/laporan-analisis-tilang" element={<AdminRoute><PrintLaporanAnalisisTilang /></AdminRoute>} />
+          <Route path="/laporan-infrastruktur-terburuk" element={<AdminRoute><LaporanInfrastrukturTerburuk /></AdminRoute>} />
+          <Route path="/print/laporan-infrastruktur-terburuk" element={<AdminRoute><PrintLaporanInfrastrukturTerburuk /></AdminRoute>} />
+          <Route path="/laporan-audit-keamanan" element={<AdminRoute><LaporanAuditKeamanan /></AdminRoute>} />
+          <Route path="/print/laporan-audit-keamanan" element={<AdminRoute><PrintLaporanAuditKeamanan /></AdminRoute>} />
+          <Route path="/laporan-lokasi-prioritas" element={<AdminRoute><LaporanLokasiPrioritas /></AdminRoute>} />
+          <Route path="/print/laporan-lokasi-prioritas" element={<AdminRoute><PrintLaporanLokasiPrioritas /></AdminRoute>} />
           <Route path="/laporan/surat-undangan" element={<AdminRoute><LaporanSuratUndangan /></AdminRoute>} />
           <Route path="/print/surat-undangan/:id" element={<PrintSuratUndangan />} />
           <Route path="/laporan/distribusi-dokumen" element={<LaporanDistribusiDokumen />} />
