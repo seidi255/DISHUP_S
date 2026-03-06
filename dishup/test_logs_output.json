@@ -1,0 +1,23 @@
+[
+    {
+        "id": 3,
+        "created_at": "2026-03-06 06:12:12",
+        "username": "TestUser",
+        "aktivitas": "Test Activity",
+        "status": "Berhasil"
+    },
+    {
+        "id": 2,
+        "created_at": "2026-03-05 20:42:05",
+        "username": "admin@dishup.com",
+        "aktivitas": "Gagal Login",
+        "status": "Gagal"
+    },
+    {
+        "id": 1,
+        "created_at": "2026-03-05 20:39:10",
+        "username": "dishupllj001@gmail.com",
+        "aktivitas": "Gagal Login",
+        "status": "Gagal"
+    }
+]

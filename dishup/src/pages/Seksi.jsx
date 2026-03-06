@@ -139,11 +139,19 @@ export default function Seksi({ kategori, nama }) {
     const handleRequest = async (file) => {
         if (!authUser) return toast.error("Login dulu");
         const pesan = prompt("Pesan (opsional):");
+        if (pesan === null) return; // User membatalkan
         try {
-            // Asumsi ada tabel permintaan_akses_files atau via izin yang diurus lewat API
-            // Ini untuk sementara dibiarkan karena kompleksitas setup backend untuk permintaan_akses_files belum ada,
-            // mari panggil request POST placeholder saja atau ke izin file sementara.
-            toast.success("Permintaan terkirim (Not yet fully implemented on Laravel REST)");
+            const response = await apiClient.post("permintaan_akses_files.php?action=insert", {
+                file_id: file.id,
+                peminta_id: authUser.id,
+                email_peminta: authUser.email,
+                pesan: pesan || ""
+            });
+            if (response.status === 'success') {
+                toast.success("Permintaan terkirim");
+            } else {
+                throw new Error(response.message || "Gagal mengirim permintaan");
+            }
         } catch (e) { toast.error(e.message); }
     };
 

@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 
-export default function AdminRoute({ children }) {
+export default function AdminRoute({ children, allowedRoles = ["admin"] }) {
     const [allowed, setAllowed] = useState(null);
 
     useEffect(() => {
@@ -15,14 +15,15 @@ export default function AdminRoute({ children }) {
             }
             try {
                 const userData = JSON.parse(atob(tokenRaw));
-                setAllowed(userData.role === "admin");
+                const userRole = userData.role || "user";
+                setAllowed(allowedRoles.includes(userRole));
             } catch (e) {
                 setAllowed(false);
             }
         };
 
         checkRole();
-    }, []);
+    }, [allowedRoles]);
 
     if (allowed === null)
         return (

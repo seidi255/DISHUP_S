@@ -1,24 +1,32 @@
 // src/pages/Dashboard.jsx
 import { useState, useEffect, useMemo } from "react";
-import { Card, Row, Col, Spinner, Badge } from "react-bootstrap";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { Card, Row, Col, Spinner, Badge, Button } from "react-bootstrap";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
+import { Link } from "react-router-dom";
 import { apiClient } from "../apiClient";
 import { useAuth } from "../context/AuthContext";
 import { useRole } from "../hooks/useRole";
 import {
-  FiFileText,
-  FiFolder,
-  FiUnlock,
-  FiLock,
+  FiMapPin,
+  FiZapOff,
+  FiAlertTriangle,
+  FiActivity,
   FiUser,
   FiRefreshCw,
   FiShield,
   FiSearch,
   FiPrinter,
+  FiLock,
+  FiFileText,
+  FiUnlock,
+  FiFolder,
+  FiPlus,
+  FiClock,
+  FiCheckCircle
 } from "react-icons/fi";
 
 // Import logo
-import logo from "../assets/logo web.png";
+import logo from "../assets/logo web.jpeg";
 
 export default function Dashboard() {
   const { role } = useRole();
@@ -26,41 +34,93 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
-    total: 0,
-    A: 0,
-    B: 0,
-    C: 0,
-    publik: 0,
-    privat: 0,
+    totalPju: 0,
+    wilayahPrioritas: 0,
+    pjuRusak: 0,
+    pjuProses: 0,
+    pjuSelesai: 0,
+    totalTilang: 0,
   });
+  const [chartData, setChartData] = useState([]);
+  const [tilangChart, setTilangChart] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
 
   /* ================= FETCH DATA ================= */
   const loadDashboard = async () => {
     try {
       setLoading(true);
 
-      const response = await apiClient.get("files.php");
-      if (response.status !== 'success') throw new Error("Gagal mengambil data");
-      const data = response.data;
+      const [resPJU, resWilayah, resRusak, resTilang, resLog] = await Promise.all([
+        apiClient.get("pju.php"),
+        apiClient.get("wilayah_prioritas.php"),
+        apiClient.get("pju_rusak.php?summary=true"),
+        apiClient.get("tilang.php"),
+        apiClient.get("log_aktivitas.php")
+      ]);
 
-      const A = data.filter((f) => f.kategori === "A").length;
-      const B = data.filter((f) => f.kategori === "B").length;
-      const C = data.filter((f) => f.kategori === "C").length;
-      // Konversi tipe tinyint (1/0) SQL ke boolean JS
-      const publik = data.filter((f) => !f.private || f.private == 0).length;
-      const privat = data.filter((f) => f.private == 1).length;
+      const totalPju = resPJU.status === 'success' ? resPJU.data.length : 0;
+      const wilayahPrioritas = resWilayah.status === 'success' ? resWilayah.data.length : 0;
+      const totalTilang = resTilang.status === 'success' ? resTilang.data.length : 0;
+
+      let pjuRusak = 0, pjuProses = 0, pjuSelesai = 0;
+      let newChartData = [];
+
+      if (resRusak.status === 'success' && resRusak.data) {
+        const summary = resRusak.data.summary || {};
+        pjuRusak = summary.rusak || 0;
+        pjuProses = summary.proses || 0;
+        pjuSelesai = summary.selesai || 0;
+
+        if (resRusak.data.wilayahChart) {
+          newChartData = resRusak.data.wilayahChart.map(item => ({
+            name: item.wilayah,
+            value: parseInt(item.value, 10)
+          }));
+        }
+      }
 
       setStats({
-        total: data.length,
-        A,
-        B,
-        C,
-        publik,
-        privat,
+        totalPju,
+        wilayahPrioritas,
+        pjuRusak,
+        pjuProses,
+        pjuSelesai,
+        totalTilang,
       });
+
+      setChartData(newChartData);
+
+      // Process Tilang Chart Data
+      let newTilangChart = [];
+      if (resTilang.status === 'success' && resTilang.data) {
+        const pelanggaranCounts = {};
+        resTilang.data.forEach(t => {
+          const jenis = t.jenis_pelanggaran || 'Lainnya';
+          pelanggaranCounts[jenis] = (pelanggaranCounts[jenis] || 0) + 1;
+        });
+        newTilangChart = Object.keys(pelanggaranCounts).map(key => ({
+          name: key,
+          value: pelanggaranCounts[key]
+        })).sort((a, b) => b.value - a.value).slice(0, 5); // top 5
+      }
+      setTilangChart(newTilangChart);
+
+      // Process Recent Activities
+      if (resLog.logAktivitas) {
+        setRecentActivities(resLog.logAktivitas.slice(0, 6));
+      } else if (resLog.status === 'success' && resLog.data && resLog.data.logAktivitas) {
+        // for safety based on actual API format
+        setRecentActivities(resLog.data.logAktivitas.slice(0, 6));
+      } else {
+        // alternative format if api returns array directly
+        if (Array.isArray(resLog)) {
+          setRecentActivities(resLog.slice(0, 6));
+        }
+      }
+
     } catch (err) {
       console.error(err);
-      alert("Gagal memuat dashboard");
+      alert("Gagal memuat data dashboard");
     } finally {
       setLoading(false);
     }
@@ -70,16 +130,8 @@ export default function Dashboard() {
     loadDashboard();
   }, []);
 
-  /* ================= CHART ================= */
-  const chartData = useMemo(
-    () => [
-      { name: "Publik", value: stats.publik },
-      { name: "Privat", value: stats.privat },
-    ],
-    [stats]
-  );
-
-  const COLORS = ["#4cc9f0", "#7c3aed"];
+  /* ================= CHART COLORS ================= */
+  const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899"];
 
   return (
     <div className="p-4" style={{ background: "#f4f6fb", minHeight: "100vh" }}>
@@ -114,8 +166,8 @@ export default function Dashboard() {
               style={{
                 width: 120,
                 height: 120,
-                borderRadius: 20,
-                background: "rgba(255,255,255,0.95)",
+                borderRadius: "50%",
+                background: "#2c3e50",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -127,12 +179,12 @@ export default function Dashboard() {
             >
               <img
                 src={logo}
-                alt="SIMANDU Logo"
+                alt="LumaTrack Logo"
                 style={{
                   width: "100%",
                   height: "100%",
-                  objectFit: "contain",
-                  padding: 8,
+                  objectFit: "cover",
+                  transform: "scale(1.4)"
                 }}
               />
             </div>
@@ -151,7 +203,7 @@ export default function Dashboard() {
                 {authUser?.email} • {role}
               </div>
               <small style={{ opacity: 0.9, fontSize: "1rem" }}>
-                Dashboard Manajemen Dokumen Dishub LLJ
+                Sistem Monitoring LumaTrack
               </small>
             </div>
           </div>
@@ -177,12 +229,12 @@ export default function Dashboard() {
       {/* ================= KPI CARDS ================= */}
       <Row className="g-4 mb-4">
         {[
-          { label: "Total File", value: stats.total, icon: <FiFileText />, color: "#4cc9f0" },
-          { label: "Publik", value: stats.publik, icon: <FiUnlock />, color: "#22c55e" },
-          { label: "Privat", value: stats.privat, icon: <FiLock />, color: "#ef4444" },
-          { label: "Seksi A", value: stats.A, icon: <FiFolder />, color: "#6366f1" },
-          { label: "Seksi B", value: stats.B, icon: <FiFolder />, color: "#8b5cf6" },
-          { label: "Seksi C", value: stats.C, icon: <FiFolder />, color: "#ec4899" },
+          { label: "Total PJU", value: stats.totalPju, icon: <FiActivity />, color: "#3b82f6", trend: "Sedang Aktif" },
+          { label: "Titik Prioritas", value: stats.wilayahPrioritas, icon: <FiMapPin />, color: "#8b5cf6", trend: "Area Pemantauan" },
+          { label: "Data Tilang", value: stats.totalTilang, icon: <FiAlertTriangle />, color: "#eab308", trend: "Total Pelanggaran" },
+          { label: "PJU Rusak", value: stats.pjuRusak, icon: <FiZapOff />, color: "#ef4444", trend: "Perlu Tindakan" },
+          { label: "Sedang Proses", value: stats.pjuProses, icon: <FiRefreshCw />, color: "#f97316", trend: "Dalam Perbaikan" },
+          { label: "Selesai Perbaikan", value: stats.pjuSelesai, icon: <FiShield />, color: "#22c55e", trend: "PJU Normal" },
         ].map((item, i) => (
           <Col key={i} lg={2} md={4} sm={6}>
             <Card
@@ -215,7 +267,10 @@ export default function Dashboard() {
                     >
                       {item.value}
                     </div>
-                    <div style={{ opacity: 0.7 }}>{item.label}</div>
+                    <div style={{ opacity: 0.7, fontSize: "0.9rem" }}>{item.label}</div>
+                    <div style={{ fontSize: "0.75rem", color: item.color, marginTop: 5, fontWeight: 700 }}>
+                      <FiActivity className="me-1" /> {item.trend}
+                    </div>
                   </div>
                   <div
                     style={{
@@ -239,133 +294,127 @@ export default function Dashboard() {
         ))}
       </Row>
 
-      {/* ================= CHART SECTION ================= */}
+      {/* ================= QUICK ACTIONS ================= */}
+      <div className="d-flex flex-wrap gap-3 mb-4">
+        <Link to="/laporan-pju" className="btn btn-primary d-flex align-items-center gap-2 px-4 shadow-sm" style={{ borderRadius: 12, fontWeight: 600 }}>
+          <FiPlus /> Tambah Data PJU
+        </Link>
+        <Link to="/laporan-tilang" className="btn btn-warning d-flex align-items-center gap-2 px-4 shadow-sm text-dark" style={{ borderRadius: 12, fontWeight: 600 }}>
+          <FiPlus /> Input Data Tilang
+        </Link>
+        <Link to="/laporan-pju-rusak" className="btn btn-danger d-flex align-items-center gap-2 px-4 shadow-sm" style={{ borderRadius: 12, fontWeight: 600 }}>
+          <FiZapOff /> Lapor PJU Rusak
+        </Link>
+      </div>
+
+      {/* ================= BOTTOM SECTION: CHARTS & ACTIVITIES ================= */}
       <Row className="g-4">
-        <Col lg={8}>
-          <Card
-            className="border-0 h-100"
-            style={{
-              borderRadius: 22,
-              boxShadow: "0 25px 45px rgba(0,0,0,.12)",
-            }}
-          >
-            <Card.Body>
+        {/* PIE CHART (PJU RUSAK) */}
+        <Col lg={4}>
+          <Card className="border-0 h-100" style={{ borderRadius: 22, boxShadow: "0 25px 45px rgba(0,0,0,.08)" }}>
+            <Card.Body className="d-flex flex-column">
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5 className="fw-bold m-0">Distribusi File</h5>
-                <FiRefreshCw
-                  role="button"
-                  onClick={loadDashboard}
-                  className="text-muted"
-                  style={{ cursor: "pointer", transition: "transform 0.3s" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = "rotate(180deg)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = "rotate(0deg)")}
-                />
+                <h5 className="fw-bold m-0" style={{ fontSize: "1.1rem" }}>Distribusi PJU Rusak</h5>
+                <FiRefreshCw role="button" onClick={loadDashboard} className="text-primary" style={{ cursor: "pointer", transition: "transform 0.3s" }} onMouseEnter={(e) => (e.currentTarget.style.transform = "rotate(180deg)")} onMouseLeave={(e) => (e.currentTarget.style.transform = "rotate(0deg)")} />
               </div>
 
-              <div style={{ width: "100%", height: 340 }}>
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie data={chartData} innerRadius={95} outerRadius={135} paddingAngle={6} dataKey="value">
-                      <Cell fill={COLORS[0]} />
-                      <Cell fill={COLORS[1]} />
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: 12,
-                        border: "none",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+              <div className="flex-grow-1 d-flex flex-column justify-content-center">
+                {chartData.length > 0 ? (
+                  <div style={{ width: "100%", height: 260 }}>
+                    <ResponsiveContainer>
+                      <PieChart>
+                        <Pie data={chartData} innerRadius={65} outerRadius={95} paddingAngle={6} dataKey="value">
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div style={{ width: "100%", height: 260, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span className="text-muted">Tidak ada PJU rusak.</span>
+                  </div>
+                )}
               </div>
-
-              <div className="text-center text-muted">Publik vs Privat</div>
+              <div className="text-center text-muted small mt-2">Berdasarkan Wilayah Laporan</div>
             </Card.Body>
           </Card>
         </Col>
 
-        {/* ================= QUICK INFO CARD (UPDATED) ================= */}
+        {/* BAR CHART (TILANG) */}
         <Col lg={4}>
-          <Card
-            className="border-0 h-100"
-            style={{
-              borderRadius: 22,
-              background: "linear-gradient(135deg, #4cc9f0, #7c3aed)",
-              color: "#fff",
-              boxShadow: "0 25px 45px rgba(124,58,237,.3)",
-            }}
-          >
+          <Card className="border-0 h-100" style={{ borderRadius: 22, boxShadow: "0 25px 45px rgba(0,0,0,.08)" }}>
             <Card.Body className="d-flex flex-column">
-              <div className="text-center mb-3">
-                <div
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: "50%",
-                    background: "rgba(255,255,255,0.2)",
-                    display: "grid",
-                    placeItems: "center",
-                    fontSize: 32,
-                    margin: "0 auto 15px",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.3)",
-                  }}
-                >
-                  <FiShield />
-                </div>
-                <h5 className="fw-bold">Ringkasan Sistem</h5>
-                <div style={{ fontSize: "0.9rem", opacity: 0.9 }}>
-                  Manajemen dokumen & surat Bidang Lalu Lintas Jalan
-                </div>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="fw-bold m-0" style={{ fontSize: "1.1rem" }}>Statistik Tilang</h5>
+                <FiAlertTriangle className="text-warning" />
               </div>
 
-              {/* TAGS */}
-              <div className="d-flex flex-wrap gap-2 justify-content-center mb-3">
-                <Badge bg="light" text="dark" style={{ borderRadius: 999, padding: "6px 10px" }}>
-                  <span className="me-1"><FiSearch /></span> Pencarian Cepat
-                </Badge>
-                <Badge bg="light" text="dark" style={{ borderRadius: 999, padding: "6px 10px" }}>
-                  <span className="me-1"><FiLock /></span> Akses Privat
-                </Badge>
-                <Badge bg="light" text="dark" style={{ borderRadius: 999, padding: "6px 10px" }}>
-                  <span className="me-1"><FiPrinter /></span> Cetak Laporan
-                </Badge>
+              <div className="flex-grow-1 d-flex flex-column justify-content-center">
+                {tilangChart.length > 0 ? (
+                  <div style={{ width: "100%", height: 260 }}>
+                    <ResponsiveContainer>
+                      <BarChart data={tilangChart} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b' }} />
+                        <Tooltip cursor={{ fill: 'rgba(0,0,0,0.04)' }} contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }} />
+                        <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]}>
+                          {tilangChart.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div style={{ width: "100%", height: 260, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span className="text-muted">Belum ada data tilang.</span>
+                  </div>
+                )}
+              </div>
+              <div className="text-center text-muted small mt-2">Pelanggaran Terbanyak</div>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        {/* RECENT ACTIVITIES */}
+        <Col lg={4}>
+          <Card className="border-0 h-100" style={{ borderRadius: 22, boxShadow: "0 25px 45px rgba(0,0,0,.08)", background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)" }}>
+            <Card.Body className="d-flex flex-column">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h5 className="fw-bold m-0" style={{ fontSize: "1.1rem" }}>Aktivitas Terbaru</h5>
+                <Badge bg="light" text="primary" className="rounded-pill px-3 py-2"><FiClock className="me-1" /> Real-time</Badge>
               </div>
 
-              {/* INFO UTAMA */}
-              <div
-                style={{
-                  background: "rgba(255,255,255,0.14)",
-                  border: "1px solid rgba(255,255,255,0.22)",
-                  borderRadius: 16,
-                  padding: 14,
-                }}
-              >
-                <div style={{ fontWeight: 800, fontSize: "1.1rem", opacity: 0.95 }}>
-                  SIMANDU
-                </div>
-                <div style={{ fontSize: "0.9rem", opacity: 0.9 }}>
-                  Sistem Informasi Manajemen Dokumen & Surat
-                </div>
-
-                <div style={{ marginTop: 10, fontSize: "0.88rem", lineHeight: 1.5, opacity: 0.92 }}>
-                  <div className="mb-2">
-                    • Mengelola dokumen berdasarkan <b>Seksi A/B/C</b> (struktur lebih rapi & terarah).
+              <div className="flex-grow-1 overflow-auto" style={{ maxHeight: "280px", paddingRight: "5px" }}>
+                {recentActivities.length > 0 ? (
+                  recentActivities.map((log, idx) => (
+                    <div key={idx} className="d-flex align-items-start mb-3 pb-3" style={{ borderBottom: idx !== recentActivities.length - 1 ? "1px dashed #e2e8f0" : "none" }}>
+                      <div style={{
+                        width: 36, height: 36, borderRadius: "50%",
+                        background: log.tipe_log === 'Login' ? '#dcfce7' : (log.tipe_log === 'Perubahan Data' ? '#e0e7ff' : '#fef3c7'),
+                        color: log.tipe_log === 'Login' ? '#16a34a' : (log.tipe_log === 'Perubahan Data' ? '#4f46e5' : '#d97706'),
+                        display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0
+                      }}>
+                        {log.tipe_log === 'Login' ? <FiUser /> : (log.tipe_log === 'Perubahan Data' ? <FiCheckCircle /> : <FiActivity />)}
+                      </div>
+                      <div className="ms-3">
+                        <div className="fw-bold" style={{ fontSize: "0.9rem", color: "#1e293b" }}>{log.aktivitas}</div>
+                        <div style={{ fontSize: "0.80rem", color: "#64748b", marginTop: 2 }}>
+                          {log.pengguna || "User"} • {new Date(log.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-muted mt-5 small">
+                    <FiClock size={24} className="mb-2 opacity-50" /><br />
+                    Belum ada aktivitas.
                   </div>
-                  <div className="mb-2">
-                    • Mendukung <b>dokumen publik & privat</b> dengan kontrol akses sesuai peran.
-                  </div>
-                  <div>
-                    • Menyediakan <b>rekap & laporan</b> untuk kebutuhan evaluasi dan administrasi.
-                  </div>
-                </div>
-              </div>
-
-              {/* FOOTER MINI */}
-              <div className="mt-auto pt-3" style={{ opacity: 0.9, fontSize: "0.85rem" }}>
-                Status:{" "}
-                <b>{role === "admin" ? "Administrator" : "Pengguna"}</b> • Data real-time dari MySQL
+                )}
               </div>
             </Card.Body>
           </Card>

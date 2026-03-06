@@ -8,12 +8,20 @@ import logoDishub from "../assets/logo-dishub.jpg";
 import { useRole } from "../hooks/useRole";
 import { useState } from "react";
 import { useLocation, Link } from "react-router-dom";
+import { Modal, Button } from "react-bootstrap";
 
 export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
     const { role } = useRole();
     const location = useLocation();
     const [openBidang, setOpenBidang] = useState(false);
     const [openSurat, setOpenSurat] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+    const handleLogout = () => {
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("dishup_token");
+        window.location.href = "/login";
+    };
 
     const isActive = (path) => location.pathname === path;
 
@@ -41,10 +49,6 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
         { path: "/laporan/surat-tugas", label: "Surat Tugas" },
         { path: "/laporan/surat-permohonan", label: "Surat Permohonan" },
         { path: "/laporan/surat-undangan", label: "Surat Undangan" },
-        { path: "/laporan/distribusi-dokumen", label: "Distribusi Dokumen" },
-        { path: "/laporan/keamanan-data", label: "Keamanan Data" },
-        { path: "/laporan/respons-akses", label: "Respons Akses" },
-        { path: "/laporan/efisiensi-surat", label: "Efisiensi Surat" },
         { path: "/laporan-audit-keamanan", label: "Audit Keamanan Sistem" },
         { path: "/laporan-lokasi-prioritas", label: "Lokasi Prioritas PJU" },
     ];
@@ -52,7 +56,6 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
     const adminItems = [
         { path: "/admin/users", label: "Kelola Pengguna", icon: <FaUsersCog /> },
         { path: "/admin/permintaan", label: "Permintaan Akses", icon: <FaEnvelopeOpenText /> },
-        { path: "/admin/laporan-dokumen", label: "Laporan Dokumen", icon: <FaFileAlt /> },
     ];
 
     return (
@@ -315,44 +318,49 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                                             <span>{item.label}</span>
                                         </Link>
                                     ))}
+                                </>
+                            )}
 
-                                    {/* Manajemen Surat */}
-                                    <div style={{ margin: "10px 0" }}>
-                                        <div
-                                            style={{
-                                                borderRadius: "10px",
-                                                padding: "12px 14px",
-                                                background: openSurat ? "rgba(124, 58, 237, 0.1)" : "transparent",
-                                                color: openSurat ? "#7c3aed" : "#cbd5e1",
-                                                display: "flex",
-                                                alignItems: "center",
-                                                gap: "10px",
-                                                cursor: "pointer",
-                                                transition: "all 0.2s ease",
-                                                fontSize: "14px"
-                                            }}
-                                            onClick={() => setOpenSurat(!openSurat)}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-                                                e.currentTarget.style.color = "#e2e8f0";
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (!openSurat) {
-                                                    e.currentTarget.style.background = "transparent";
-                                                    e.currentTarget.style.color = "#cbd5e1";
-                                                }
-                                            }}
-                                        >
-                                            <span style={{ opacity: 0.9, minWidth: "20px" }}><FaMailBulk /></span>
-                                            <span>Laporan</span>
-                                            <span style={{ marginLeft: "auto", opacity: 0.7 }}>
-                                                {openSurat ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
-                                            </span>
-                                        </div>
+                            {/* Manajemen Surat / Laporan */}
+                            {(role === "admin" || role === "pegawai") && (
+                                <div style={{ margin: "10px 0" }}>
+                                    <div
+                                        style={{
+                                            borderRadius: "10px",
+                                            padding: "12px 14px",
+                                            background: openSurat ? "rgba(124, 58, 237, 0.1)" : "transparent",
+                                            color: openSurat ? "#7c3aed" : "#cbd5e1",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "10px",
+                                            cursor: "pointer",
+                                            transition: "all 0.2s ease",
+                                            fontSize: "14px"
+                                        }}
+                                        onClick={() => setOpenSurat(!openSurat)}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+                                            e.currentTarget.style.color = "#e2e8f0";
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!openSurat) {
+                                                e.currentTarget.style.background = "transparent";
+                                                e.currentTarget.style.color = "#cbd5e1";
+                                            }
+                                        }}
+                                    >
+                                        <span style={{ opacity: 0.9, minWidth: "20px" }}><FaMailBulk /></span>
+                                        <span>Laporan</span>
+                                        <span style={{ marginLeft: "auto", opacity: 0.7 }}>
+                                            {openSurat ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+                                        </span>
+                                    </div>
 
-                                        {openSurat && (
-                                            <div style={{ padding: "5px 0 5px 30px" }}>
-                                                {adminSuratItems.map((item) => (
+                                    {openSurat && (
+                                        <div style={{ padding: "5px 0 5px 30px" }}>
+                                            {adminSuratItems
+                                                .filter((item) => role === "admin" || item.path !== "/laporan-audit-keamanan")
+                                                .map((item) => (
                                                     <Link
                                                         key={item.path}
                                                         to={item.path}
@@ -384,10 +392,9 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                                                         {item.label}
                                                     </Link>
                                                 ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </div>
 
@@ -406,10 +413,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                                     transition: "all 0.2s ease",
                                     fontSize: "14px"
                                 }}
-                                onClick={() => {
-                                    localStorage.removeItem("isLoggedIn");
-                                    window.location.href = "/login";
-                                }}
+                                onClick={() => setShowLogoutModal(true)}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.background = "rgba(239, 68, 68, 0.15)";
                                     e.currentTarget.style.transform = "translateY(-2px)";
@@ -446,6 +450,64 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }) {
                     background: rgba(76, 201, 240, 0.5);
                 }
             `}</style>
+
+            {/* Modal Logout (Enhanced) */}
+            <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)} centered style={{ zIndex: 10002 }} backdrop="static">
+                <Modal.Body className="text-center p-5" style={{ background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)", borderRadius: "24px" }}>
+                    <div
+                        style={{
+                            width: "80px",
+                            height: "80px",
+                            background: "rgba(239, 68, 68, 0.1)",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            margin: "0 auto 20px"
+                        }}
+                    >
+                        <FaSignOutAlt size={40} color="#ef4444" style={{ transform: "translateX(3px)" }} />
+                    </div>
+                    <h4 className="fw-bold text-dark mb-3">Keluar Sistem?</h4>
+                    <p className="text-muted mb-4 px-3">
+                        Sesi Anda akan dihentikan dan Anda harus login kembali untuk mengakses LumaTrack.
+                    </p>
+                    <div className="d-flex justify-content-center gap-3">
+                        <Button
+                            variant="light"
+                            onClick={() => setShowLogoutModal(false)}
+                            style={{
+                                borderRadius: "12px",
+                                padding: "12px 24px",
+                                fontWeight: "600",
+                                color: "#64748b",
+                                background: "#f1f5f9",
+                                border: "none"
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = "#e2e8f0"}
+                            onMouseLeave={(e) => e.target.style.background = "#f1f5f9"}
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            variant="danger"
+                            onClick={handleLogout}
+                            style={{
+                                borderRadius: "12px",
+                                padding: "12px 24px",
+                                fontWeight: "600",
+                                background: "#ef4444",
+                                border: "none",
+                                boxShadow: "0 4px 12px rgba(239, 68, 68, 0.3)"
+                            }}
+                            onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
+                            onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+                        >
+                            Ya, Keluar
+                        </Button>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </>
     );
 }

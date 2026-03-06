@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"; // Pastikan useEffect diimport
 import { Form, Button, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../apiClient";
-import logoWeb from "../assets/logo web.png";
+import logoWeb from "../assets/logo web.jpeg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -97,36 +97,37 @@ export default function Login() {
             textAlign: "center",
           }}
         >
-          {/* Logo */}
           <div
             style={{
               width: 96,
               height: 96,
               borderRadius: "50%",
-              backgroundColor: "#fff",
+              backgroundColor: "#2c3e50", // Dark circle matches typical logo themes better than solid white, or adjust later.
               margin: "0 auto 14px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               boxShadow: "0 8px 20px rgba(0,0,0,0.18)",
+              overflow: "hidden"
             }}
           >
             <img
               src={logoWeb}
-              alt="Logo SIMANDU"
+              alt="Logo LumaTrack"
               style={{
-                width: 68,
-                height: 68,
-                objectFit: "contain",
+                width: 96,
+                height: 96,
+                objectFit: "cover",
+                transform: "scale(1.4)"
               }}
             />
           </div>
 
           <h4 style={{ margin: 0, color: "#fff", fontWeight: 700 }}>
-            SIMANDU
+            LumaTrack
           </h4>
           <small style={{ color: "rgba(255,255,255,0.9)" }}>
-            Sistem Informasi Manajemen Dokumen dan Surat
+            Sistem Monitoring
           </small>
         </div>
 
@@ -175,12 +176,17 @@ export default function Login() {
             </Button>
           </Form>
 
-          <p className="mt-3 mb-0 text-center">
-            Belum punya akun?{" "}
-            <a href="/daftar" style={{ textDecoration: "none" }}>
-              Daftar di sini
+          <div className="d-flex justify-content-between align-items-center mt-3">
+            <p className="mb-0" style={{ fontSize: "0.9rem" }}>
+              Belum punya akun?{" "}
+              <a href="/daftar" style={{ textDecoration: "none" }}>
+                Daftar di sini
+              </a>
+            </p>
+            <a href="/lupa-password" style={{ textDecoration: "none", fontSize: "0.9rem", color: "#6c757d" }}>
+              Lupa password?
             </a>
-          </p>
+          </div>
         </div>
       </Card>
     </div>

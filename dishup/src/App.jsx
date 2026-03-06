@@ -14,18 +14,14 @@ import AdminRoute from "./components/admin/AdminRoute";
 import AdminPermintaan from "./pages/admin/AdminPermintaan";
 import AuthCallback from "./pages/AuthCallback";
 import PrintLaporanPengguna from "./pages/printsurat/PrintLaporanPengguna";
-import LaporanDokumen from "./pages/admin/LaporanDokumen";
-import ProtectedAdmin from "./pages/admin/ProtectedAdmin";
+import LupaPassword from "./pages/LupaPassword";
+import ResetPassword from "./pages/ResetPassword";
 import LaporanSuratTugas from "./pages/laporan/LaporanSuratTugas";
 import LaporanSuratPermohonan from "./pages/laporan/LaporanSuratPermohonan";
 import PrintSuratTugas from "./pages/printsurat/PrintSuratTugas";
 import PrintSuratPermohonan from "./pages/printsurat/PrintSuratPermohonan";
 import LaporanSuratUndangan from "./pages/laporan/LaporanSuratUndangan";
 import PrintSuratUndangan from "./pages/printsurat/PrintSuratUndangan";
-import LaporanDistribusiDokumen from "./pages/laporan/LaporanDistribusiDokumen";
-import LaporanKeamananData from "./pages/laporan/LaporanKeamananData";
-import LaporanResponsAkses from "./pages/laporan/LaporanResponsAkses";
-import LaporanEfisiensiSurat from "./pages/laporan/LaporanEfisiensiSurat";
 import PrintRekapanSuratTugas from "./pages/printsurat/PrintRekapanSuratTugas";
 import PrintRekapanSuratPermohonan from "./pages/printsurat/PrintRekapanSuratPermohonan";
 import PrintRekapanSuratUndangan from "./pages/printsurat/PrintRekapanSuratUndangan";
@@ -55,9 +51,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Halaman login & daftar (tidak diproteksi) */}
+        {/* Halaman login & daftar & lupa password (tidak diproteksi) */}
         <Route path="/login" element={<Login />} />
         <Route path="/daftar" element={<Daftar />} />
+        <Route path="/lupa-password" element={<LupaPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Semua halaman di dalam DashboardLayout diproteksi */}
         <Route
@@ -76,39 +74,34 @@ function App() {
           <Route path="/seksi-c" element={<SeksiC />} />
           <Route path="/profil" element={<Profil />} />
           <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
-          <Route path="/admin/permintaan" element={<AdminPermintaan />} />
+          <Route path="/admin/permintaan" element={<AdminRoute><AdminPermintaan /></AdminRoute>} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/print-laporan-pengguna" element={<PrintLaporanPengguna />} />
-          <Route path="/admin/laporan-dokumen" element={<ProtectedAdmin><LaporanDokumen /></ProtectedAdmin>} />
-          <Route path="/laporan/surat-tugas" element={<AdminRoute><LaporanSuratTugas /></AdminRoute>} />
-          <Route path="/laporan/surat-permohonan" element={<AdminRoute><LaporanSuratPermohonan /></AdminRoute>} />
-          <Route path="/print/surat-tugas/:id" element={<AdminRoute><PrintSuratTugas /></AdminRoute>} />
-          <Route path="/print/surat-permohonan/:id" element={<AdminRoute><PrintSuratPermohonan /></AdminRoute>} />
-          <Route path="/laporan-pju" element={<AdminRoute><LaporanDataPJU /></AdminRoute>} />
-          <Route path="/print/laporan-pju" element={<AdminRoute><PrintLaporanPJU /></AdminRoute>} />
-          <Route path="/laporan-tilang" element={<AdminRoute><LaporanDataTilang /></AdminRoute>} />
-          <Route path="/print/laporan-tilang" element={<AdminRoute><PrintLaporanTilang /></AdminRoute>} />
-          <Route path="/laporan-pju-rusak" element={<AdminRoute><LaporanPJURusak /></AdminRoute>} />
-          <Route path="/print/laporan-pju-rusak" element={<AdminRoute><PrintLaporanPJURusak /></AdminRoute>} />
-          <Route path="/laporan-analisis-pju" element={<AdminRoute><LaporanAnalisisPJU /></AdminRoute>} />
-          <Route path="/print/laporan-analisis-pju" element={<AdminRoute><PrintLaporanAnalisisPJU /></AdminRoute>} />
-          <Route path="/laporan-analisis-tilang" element={<AdminRoute><LaporanAnalisisTilang /></AdminRoute>} />
-          <Route path="/print/laporan-analisis-tilang" element={<AdminRoute><PrintLaporanAnalisisTilang /></AdminRoute>} />
-          <Route path="/laporan-infrastruktur-terburuk" element={<AdminRoute><LaporanInfrastrukturTerburuk /></AdminRoute>} />
-          <Route path="/print/laporan-infrastruktur-terburuk" element={<AdminRoute><PrintLaporanInfrastrukturTerburuk /></AdminRoute>} />
+          <Route path="/laporan/surat-tugas" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanSuratTugas /></AdminRoute>} />
+          <Route path="/laporan/surat-permohonan" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanSuratPermohonan /></AdminRoute>} />
+          <Route path="/print/surat-tugas/:id" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintSuratTugas /></AdminRoute>} />
+          <Route path="/print/surat-permohonan/:id" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintSuratPermohonan /></AdminRoute>} />
+          <Route path="/laporan-pju" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanDataPJU /></AdminRoute>} />
+          <Route path="/print/laporan-pju" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintLaporanPJU /></AdminRoute>} />
+          <Route path="/laporan-tilang" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanDataTilang /></AdminRoute>} />
+          <Route path="/print/laporan-tilang" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintLaporanTilang /></AdminRoute>} />
+          <Route path="/laporan-pju-rusak" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanPJURusak /></AdminRoute>} />
+          <Route path="/print/laporan-pju-rusak" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintLaporanPJURusak /></AdminRoute>} />
+          <Route path="/laporan-analisis-pju" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanAnalisisPJU /></AdminRoute>} />
+          <Route path="/print/laporan-analisis-pju" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintLaporanAnalisisPJU /></AdminRoute>} />
+          <Route path="/laporan-analisis-tilang" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanAnalisisTilang /></AdminRoute>} />
+          <Route path="/print/laporan-analisis-tilang" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintLaporanAnalisisTilang /></AdminRoute>} />
+          <Route path="/laporan-infrastruktur-terburuk" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanInfrastrukturTerburuk /></AdminRoute>} />
+          <Route path="/print/laporan-infrastruktur-terburuk" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintLaporanInfrastrukturTerburuk /></AdminRoute>} />
           <Route path="/laporan-audit-keamanan" element={<AdminRoute><LaporanAuditKeamanan /></AdminRoute>} />
           <Route path="/print/laporan-audit-keamanan" element={<AdminRoute><PrintLaporanAuditKeamanan /></AdminRoute>} />
-          <Route path="/laporan-lokasi-prioritas" element={<AdminRoute><LaporanLokasiPrioritas /></AdminRoute>} />
-          <Route path="/print/laporan-lokasi-prioritas" element={<AdminRoute><PrintLaporanLokasiPrioritas /></AdminRoute>} />
-          <Route path="/laporan/surat-undangan" element={<AdminRoute><LaporanSuratUndangan /></AdminRoute>} />
-          <Route path="/print/surat-undangan/:id" element={<PrintSuratUndangan />} />
-          <Route path="/laporan/distribusi-dokumen" element={<LaporanDistribusiDokumen />} />
-          <Route path="laporan/keamanan-data" element={<LaporanKeamananData />} />
-          <Route path="laporan/respons-akses" element={<LaporanResponsAkses />} />
-          <Route path="/laporan/efisiensi-surat" element={<LaporanEfisiensiSurat />} />
-          <Route path="/print/rekapan-surat-tugas" element={<PrintRekapanSuratTugas />} />
-          <Route path="/print/rekapan-surat-permohonan" element={<PrintRekapanSuratPermohonan />} />
-          <Route path="/print/rekapan-surat-undangan" element={<PrintRekapanSuratUndangan />} />
+          <Route path="/laporan-lokasi-prioritas" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanLokasiPrioritas /></AdminRoute>} />
+          <Route path="/print/laporan-lokasi-prioritas" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintLaporanLokasiPrioritas /></AdminRoute>} />
+          <Route path="/laporan/surat-undangan" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><LaporanSuratUndangan /></AdminRoute>} />
+          <Route path="/print/surat-undangan/:id" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintSuratUndangan /></AdminRoute>} />
+          <Route path="/print/rekapan-surat-tugas" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintRekapanSuratTugas /></AdminRoute>} />
+          <Route path="/print/rekapan-surat-permohonan" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintRekapanSuratPermohonan /></AdminRoute>} />
+          <Route path="/print/rekapan-surat-undangan" element={<AdminRoute allowedRoles={["admin", "pegawai"]}><PrintRekapanSuratUndangan /></AdminRoute>} />
 
         </Route>
       </Routes>

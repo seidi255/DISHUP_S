@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"; // Tambahkan useEffect
 import { Form, Button, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../apiClient";
-import logoWeb from "../assets/logo web.png";
+import logoWeb from "../assets/logo web.jpeg";
 
 export default function Daftar() {
   const navigate = useNavigate();
@@ -96,30 +96,32 @@ export default function Daftar() {
               width: 96,
               height: 96,
               borderRadius: "50%",
-              backgroundColor: "#fff",
+              backgroundColor: "#2c3e50",
               margin: "0 auto 12px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+              overflow: "hidden"
             }}
           >
             <img
               src={logoWeb}
-              alt="Logo SIMANDU"
+              alt="Logo LumaTrack"
               style={{
-                width: 70,
-                height: 70,
-                objectFit: "contain",
+                width: 96,
+                height: 96,
+                objectFit: "cover",
+                transform: "scale(1.4)"
               }}
             />
           </div>
 
           <h4 style={{ margin: 0, color: "#fff", fontWeight: 700 }}>
-            SIMANDU
+            LumaTrack
           </h4>
           <small style={{ color: "rgba(255,255,255,0.9)" }}>
-            Sistem Informasi Manajemen Dokumen dan Surat
+            Sistem Monitoring
           </small>
         </div>
 

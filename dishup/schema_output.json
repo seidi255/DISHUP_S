@@ -1,0 +1,58 @@
+[
+    {
+        "Field": "id",
+        "Type": "varchar(36)",
+        "Null": "NO",
+        "Key": "PRI",
+        "Default": "uuid()",
+        "Extra": "DEFAULT_GENERATED"
+    },
+    {
+        "Field": "email",
+        "Type": "varchar(255)",
+        "Null": "NO",
+        "Key": "UNI",
+        "Default": null,
+        "Extra": ""
+    },
+    {
+        "Field": "password_hash",
+        "Type": "varchar(255)",
+        "Null": "NO",
+        "Key": "",
+        "Default": null,
+        "Extra": ""
+    },
+    {
+        "Field": "created_at",
+        "Type": "timestamp",
+        "Null": "YES",
+        "Key": "",
+        "Default": "CURRENT_TIMESTAMP",
+        "Extra": "DEFAULT_GENERATED"
+    },
+    {
+        "Field": "is_active",
+        "Type": "tinyint(1)",
+        "Null": "YES",
+        "Key": "",
+        "Default": "1",
+        "Extra": ""
+    },
+    {
+        "Field": "reset_token",
+        "Type": "varchar(255)",
+        "Null": "YES",
+        "Key": "",
+        "Default": null,
+        "Extra": ""
+    },
+    {
+        "Field": "reset_expires",
+        "Type": "datetime",
+        "Null": "YES",
+        "Key": "",
+        "Default": null,
+        "Extra": ""
+    }
+]

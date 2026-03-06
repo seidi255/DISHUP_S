@@ -1,156 +1,1940 @@
--- CREATE DATABASE
-CREATE DATABASE IF NOT EXISTS db_dishup;
-USE db_dishup;
+-- phpMyAdmin SQL Dump
+-- version 5.2.0
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1:3306
+-- Generation Time: Mar 06, 2026 at 12:33 AM
+-- Server version: 8.0.30
+-- PHP Version: 8.1.10
 
--- 1. Tabel users (Pengganti auth.users dari Supabase)
-CREATE TABLE users (
-  id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
--- 2. Tabel profiles
-CREATE TABLE profiles (
-  id VARCHAR(36) PRIMARY KEY,
-  email VARCHAR(255) UNIQUE,
-  role VARCHAR(50) DEFAULT 'user',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  nama VARCHAR(255),
-  foto TEXT,
-  is_active BOOLEAN DEFAULT TRUE,
-  CONSTRAINT fk_profiles_user FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
-);
 
--- 3. Tabel dokumen
-CREATE TABLE dokumen (
-  id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY,
-  nama_file TEXT,
-  jenis_dokumen VARCHAR(255),
-  bidang VARCHAR(255),
-  uploaded_by VARCHAR(36),
-  ukuran_file VARCHAR(50),
-  is_private BOOLEAN DEFAULT FALSE,
-  keterangan TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_dokumen_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES profiles(id) ON DELETE SET NULL
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
--- 4. Tabel files
-CREATE TABLE files (
-  id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  path TEXT NOT NULL,
-  kategori VARCHAR(255) NOT NULL,
-  private BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  user_id VARCHAR(36) NOT NULL,
-  owner VARCHAR(255),
-  CONSTRAINT fk_files_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+--
+-- Database: `db_dishup`
+--
 
--- 5. Tabel izin_files
-CREATE TABLE izin_files (
-  id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY,
-  file_id VARCHAR(36) NOT NULL,
-  penerima_id VARCHAR(36) NOT NULL,
-  diberi_oleh VARCHAR(36),
-  dibuat_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  diberi_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  waktu_permohonan TIMESTAMP NULL,
-  CONSTRAINT fk_izin_files_file_id FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
-);
+-- --------------------------------------------------------
 
--- 6. Tabel laporan_surat
-CREATE TABLE laporan_surat (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  nomor_surat VARCHAR(255) NOT NULL,
-  jenis_surat VARCHAR(100) NOT NULL,
-  tanggal_surat DATE NOT NULL,
-  perihal TEXT NOT NULL,
-  nama_pegawai VARCHAR(255) NOT NULL,
-  jabatan VARCHAR(255),
-  tujuan VARCHAR(255),
-  keterangan TEXT,
-  file_scan TEXT,
-  dibuat_oleh VARCHAR(36),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_laporan_surat_dibuat_oleh FOREIGN KEY (dibuat_oleh) REFERENCES users(id) ON DELETE SET NULL
-);
+--
+-- Table structure for table `dokumen`
+--
 
--- 7. Tabel permintaan_akses_files
-CREATE TABLE permintaan_akses_files (
-  id VARCHAR(36) DEFAULT (UUID()) PRIMARY KEY,
-  file_id VARCHAR(36) NOT NULL,
-  peminta_id VARCHAR(36) NOT NULL,
-  email_peminta VARCHAR(255),
-  pesan TEXT,
-  status VARCHAR(50) DEFAULT 'menunggu',
-  dibuat_pada TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_permintaan_file_id FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE CASCADE
-);
+CREATE TABLE `dokumen` (
+  `id` varchar(36) NOT NULL DEFAULT (uuid()),
+  `nama_file` text,
+  `jenis_dokumen` varchar(255) DEFAULT NULL,
+  `bidang` varchar(255) DEFAULT NULL,
+  `uploaded_by` varchar(36) DEFAULT NULL,
+  `ukuran_file` varchar(50) DEFAULT NULL,
+  `is_private` tinyint(1) DEFAULT '0',
+  `keterangan` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- 8. Tabel surat_permohonan
-CREATE TABLE surat_permohonan (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  nomor_surat VARCHAR(255) NOT NULL,
-  tanggal_surat DATE NOT NULL,
-  perihal TEXT NOT NULL,
-  tujuan VARCHAR(255) NOT NULL,
-  instansi_tujuan VARCHAR(255) NOT NULL,
-  nama_pemohon VARCHAR(255) NOT NULL,
-  identitas_pemohon VARCHAR(255) NOT NULL,
-  jabatan_pemohon VARCHAR(255) NOT NULL,
-  unit_pemohon VARCHAR(255),
-  keperluan TEXT NOT NULL,
-  waktu_permohonan VARCHAR(255),
-  paragraf_pembuka TEXT,
-  paragraf_penutup TEXT,
-  nama_penandatangan VARCHAR(255) NOT NULL,
-  jabatan_penandatangan VARCHAR(255) NOT NULL,
-  nip_penandatangan VARCHAR(50),
-  dibuat_oleh VARCHAR(36),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_sp_dibuat_oleh FOREIGN KEY (dibuat_oleh) REFERENCES users(id) ON DELETE SET NULL
-);
+-- --------------------------------------------------------
 
--- 9. Tabel surat_tugas
-CREATE TABLE surat_tugas (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  nomor_surat VARCHAR(255) NOT NULL,
-  tanggal_surat DATE NOT NULL,
-  nama_pejabat VARCHAR(255) NOT NULL,
-  nip_pejabat VARCHAR(50),
-  jabatan_pejabat VARCHAR(255) NOT NULL,
-  nama_pegawai VARCHAR(255) NOT NULL,
-  nip_pegawai VARCHAR(50),
-  pangkat_golongan VARCHAR(100),
-  jabatan_pegawai VARCHAR(255) NOT NULL,
-  unit_kerja VARCHAR(255),
-  dasar_penugasan TEXT,
-  uraian_tugas TEXT NOT NULL,
-  tempat_tugas VARCHAR(255),
-  waktu_pelaksanaan VARCHAR(255),
-  dibuat_oleh VARCHAR(36),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_st_dibuat_oleh FOREIGN KEY (dibuat_oleh) REFERENCES users(id) ON DELETE SET NULL
-);
+--
+-- Table structure for table `files`
+--
 
--- 10. Tabel surat_undangan
-CREATE TABLE surat_undangan (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  nomor_surat VARCHAR(255) NOT NULL,
-  tanggal_surat DATE NOT NULL,
-  perihal TEXT NOT NULL,
-  tujuan VARCHAR(255),
-  keterangan TEXT,
-  dibuat_oleh VARCHAR(36),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  jabatan_tujuan VARCHAR(255),
-  instansi_tujuan VARCHAR(255),
-  hari_tanggal VARCHAR(255),
-  waktu VARCHAR(100),
-  tempat VARCHAR(255),
-  agenda TEXT,
-  CONSTRAINT fk_su_dibuat_oleh FOREIGN KEY (dibuat_oleh) REFERENCES users(id) ON DELETE SET NULL
-);
+CREATE TABLE `files` (
+  `id` varchar(36) NOT NULL DEFAULT (uuid()),
+  `name` varchar(255) NOT NULL,
+  `path` text NOT NULL,
+  `kategori` varchar(255) NOT NULL,
+  `private` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `user_id` varchar(36) NOT NULL,
+  `owner` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `files`
+--
+
+INSERT INTO `files` (`id`, `name`, `path`, `kategori`, `private`, `created_at`, `user_id`, `owner`) VALUES
+('5daf5412-1691-11f1-ac09-088fc387a463', 'REKAPITULASI PELANGGARAN ODOL 2025- Copy.xls', 'uploads/A/69a62036487e90.71031889.xls', 'A', 1, '2026-03-02 23:41:42', 'ed1d0200-1690-11f1-ac09-088fc387a463', 'admin@dishup.com'),
+('6e27b9ca-18da-11f1-ab29-088fc387a463', 'Pegertian-Planet-Jenis-Macam-Tata-Surya-Pegertian-Matahari-dan-Pembentukan-Matahari-10.jpg', 'uploads/A/69a9f5c97d7217.88566050.jpg', 'A', 1, '2026-03-05 21:29:45', 'ed1d0200-1690-11f1-ac09-088fc387a463', 'admin@dishup.com');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `izin_files`
+--
+
+CREATE TABLE `izin_files` (
+  `id` varchar(36) NOT NULL DEFAULT (uuid()),
+  `file_id` varchar(36) NOT NULL,
+  `penerima_id` varchar(36) NOT NULL,
+  `diberi_oleh` varchar(36) DEFAULT NULL,
+  `dibuat_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `diberi_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `waktu_permohonan` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `izin_files`
+--
+
+INSERT INTO `izin_files` (`id`, `file_id`, `penerima_id`, `diberi_oleh`, `dibuat_pada`, `diberi_pada`, `waktu_permohonan`) VALUES
+('9d48fd8d-18db-11f1-ab29-088fc387a463', '6e27b9ca-18da-11f1-ab29-088fc387a463', 'ba7eefe6-18d7-11f1-ab29-088fc387a463', 'ed1d0200-1690-11f1-ac09-088fc387a463', '2026-03-05 21:38:14', '2026-03-05 21:38:14', '2026-03-05 21:38:14');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `laporan_surat`
+--
+
+CREATE TABLE `laporan_surat` (
+  `id` bigint NOT NULL,
+  `nomor_surat` varchar(255) NOT NULL,
+  `jenis_surat` varchar(100) NOT NULL,
+  `tanggal_surat` date NOT NULL,
+  `perihal` text NOT NULL,
+  `nama_pegawai` varchar(255) NOT NULL,
+  `jabatan` varchar(255) DEFAULT NULL,
+  `tujuan` varchar(255) DEFAULT NULL,
+  `keterangan` text,
+  `file_scan` text,
+  `dibuat_oleh` varchar(36) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `permintaan_akses_files`
+--
+
+CREATE TABLE `permintaan_akses_files` (
+  `id` varchar(36) NOT NULL DEFAULT (uuid()),
+  `file_id` varchar(36) NOT NULL,
+  `peminta_id` varchar(36) NOT NULL,
+  `email_peminta` varchar(255) DEFAULT NULL,
+  `pesan` text,
+  `status` varchar(50) DEFAULT 'menunggu',
+  `dibuat_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `permintaan_akses_files`
+--
+
+INSERT INTO `permintaan_akses_files` (`id`, `file_id`, `peminta_id`, `email_peminta`, `pesan`, `status`, `dibuat_pada`) VALUES
+('958aa356-18db-11f1-ab29-088fc387a463', '6e27b9ca-18da-11f1-ab29-088fc387a463', 'ba7eefe6-18d7-11f1-ab29-088fc387a463', 'seidirahmat007@gmail.com', 'buat projek', 'disetujui', '2026-03-05 21:38:01');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `profiles`
+--
+
+CREATE TABLE `profiles` (
+  `id` varchar(36) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `role` varchar(50) DEFAULT 'user',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `nama` varchar(255) DEFAULT NULL,
+  `foto` text,
+  `is_active` tinyint(1) DEFAULT '1',
+  `no_telepon` varchar(20) DEFAULT NULL,
+  `jabatan` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `profiles`
+--
+
+INSERT INTO `profiles` (`id`, `email`, `role`, `created_at`, `nama`, `foto`, `is_active`, `no_telepon`, `jabatan`) VALUES
+('2d6e44dd-1698-11f1-b509-088fc387a463', 'dishupllj001@gmail.com', 'admin', '2026-03-03 00:30:27', 'dishup', NULL, 1, NULL, NULL),
+('ba7eefe6-18d7-11f1-ab29-088fc387a463', 'seidirahmat007@gmail.com', 'pegawai', '2026-03-05 21:10:25', 'Seidi', NULL, 1, NULL, NULL),
+('ed1d0200-1690-11f1-ac09-088fc387a463', 'admin@dishup.com', 'admin', '2026-03-02 23:38:33', 'Administrator', NULL, 1, '0885555555', 'KETUA');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `surat_permohonan`
+--
+
+CREATE TABLE `surat_permohonan` (
+  `id` bigint NOT NULL,
+  `nomor_surat` varchar(255) NOT NULL,
+  `tanggal_surat` date NOT NULL,
+  `perihal` text NOT NULL,
+  `tujuan` varchar(255) NOT NULL,
+  `instansi_tujuan` varchar(255) NOT NULL,
+  `nama_pemohon` varchar(255) NOT NULL,
+  `identitas_pemohon` varchar(255) NOT NULL,
+  `jabatan_pemohon` varchar(255) NOT NULL,
+  `unit_pemohon` varchar(255) DEFAULT NULL,
+  `keperluan` text NOT NULL,
+  `waktu_permohonan` varchar(255) DEFAULT NULL,
+  `paragraf_pembuka` text,
+  `paragraf_penutup` text,
+  `nama_penandatangan` varchar(255) NOT NULL,
+  `jabatan_penandatangan` varchar(255) NOT NULL,
+  `nip_penandatangan` varchar(50) DEFAULT NULL,
+  `dibuat_oleh` varchar(36) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `surat_tugas`
+--
+
+CREATE TABLE `surat_tugas` (
+  `id` bigint NOT NULL,
+  `nomor_surat` varchar(255) NOT NULL,
+  `tanggal_surat` date NOT NULL,
+  `nama_pejabat` varchar(255) NOT NULL,
+  `nip_pejabat` varchar(50) DEFAULT NULL,
+  `jabatan_pejabat` varchar(255) NOT NULL,
+  `nama_pegawai` varchar(255) NOT NULL,
+  `nip_pegawai` varchar(50) DEFAULT NULL,
+  `pangkat_golongan` varchar(100) DEFAULT NULL,
+  `jabatan_pegawai` varchar(255) NOT NULL,
+  `unit_kerja` varchar(255) DEFAULT NULL,
+  `dasar_penugasan` text,
+  `uraian_tugas` text NOT NULL,
+  `tempat_tugas` varchar(255) DEFAULT NULL,
+  `waktu_pelaksanaan` varchar(255) DEFAULT NULL,
+  `dibuat_oleh` varchar(36) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `surat_tugas`
+--
+
+INSERT INTO `surat_tugas` (`id`, `nomor_surat`, `tanggal_surat`, `nama_pejabat`, `nip_pejabat`, `jabatan_pejabat`, `nama_pegawai`, `nip_pegawai`, `pangkat_golongan`, `jabatan_pegawai`, `unit_kerja`, `dasar_penugasan`, `uraian_tugas`, `tempat_tugas`, `waktu_pelaksanaan`, `dibuat_oleh`, `created_at`) VALUES
+(1, '005/UND/DISHUB-LLJ/III/2025', '2026-03-03', 'Muhammad Fauzi, S.STP., M.Si', '19820412 200312 1 003', 'Kepala Bidang Lalu Lintas Jalan', 'qqqq', '19950321 202101 1 012', 'Penata (III/c)', 'Pengendali Operasional', 'Bidang Lalu Lintas Jalan Dinas Perhubungan Provinsi Kalimantan Selatan', 'Surat Perintah Kepala Dinas Perhubungan Provinsi Kalimantan Selatan Nomor: 800/1245/DISHUB/2025', 'mamamaajajaj', 'Kota Banjarmasin', '15 Desember 2025 s.d. 17 Desember 2025', 'ed1d0200-1690-11f1-ac09-088fc387a463', '2026-03-02 23:40:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `surat_undangan`
+--
+
+CREATE TABLE `surat_undangan` (
+  `id` bigint NOT NULL,
+  `nomor_surat` varchar(255) NOT NULL,
+  `tanggal_surat` date NOT NULL,
+  `perihal` text NOT NULL,
+  `tujuan` varchar(255) DEFAULT NULL,
+  `keterangan` text,
+  `dibuat_oleh` varchar(36) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `jabatan_tujuan` varchar(255) DEFAULT NULL,
+  `instansi_tujuan` varchar(255) DEFAULT NULL,
+  `hari_tanggal` varchar(255) DEFAULT NULL,
+  `waktu` varchar(100) DEFAULT NULL,
+  `tempat` varchar(255) DEFAULT NULL,
+  `agenda` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_log_aktivitas`
+--
+
+CREATE TABLE `tbl_log_aktivitas` (
+  `id` int NOT NULL,
+  `user_id` varchar(36) DEFAULT NULL,
+  `username` varchar(255) NOT NULL,
+  `tipe_log` enum('Login','Aktivitas','Perubahan Data') NOT NULL,
+  `aktivitas` varchar(255) NOT NULL,
+  `aksi` varchar(50) NOT NULL,
+  `data_terkait` varchar(100) NOT NULL,
+  `status` varchar(50) NOT NULL,
+  `ip_address` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `tbl_log_aktivitas`
+--
+
+INSERT INTO `tbl_log_aktivitas` (`id`, `user_id`, `username`, `tipe_log`, `aktivitas`, `aksi`, `data_terkait`, `status`, `ip_address`, `created_at`) VALUES
+(1, NULL, 'dishupllj001@gmail.com', 'Login', 'Gagal Login', 'Login', 'Sistem', 'Gagal', '::1', '2026-03-05 12:39:10'),
+(2, NULL, 'admin@dishup.com', 'Login', 'Gagal Login', 'Login', 'Sistem', 'Gagal', '::1', '2026-03-05 12:42:05'),
+(3, NULL, 'TestUser', 'Login', 'Test Activity', 'Test Action', 'Test Data', 'Berhasil', '127.0.0.1', '2026-03-05 22:12:12'),
+(4, '123e4567-e89b-12d3-a456-426614174000', 'test@test.com', 'Login', 'Login Sistem', 'Login', 'Sistem', 'Berhasil', '127.0.0.1', '2026-03-05 22:22:01'),
+(5, 'ed1d0200-1690-11f1-ac09-088fc387a463', 'User IDs: ed1d0200-1690-11f1-ac09-088fc387a463', 'Perubahan Data', 'Reset Password', 'Update', 'users', 'Berhasil', '::1', '2026-03-05 22:25:05'),
+(6, 'ed1d0200-1690-11f1-ac09-088fc387a463', 'admin@dishup.com', 'Login', 'Login Sistem', 'Login', 'Sistem', 'Berhasil', '::1', '2026-03-05 22:25:14'),
+(7, 'ed1d0200-1690-11f1-ac09-088fc387a463', 'admin@dishup.com', 'Login', 'Login Sistem', 'Login', 'Sistem', 'Berhasil', '::1', '2026-03-05 23:25:14'),
+(8, 'ed1d0200-1690-11f1-ac09-088fc387a463', 'admin@dishup.com', 'Login', 'Login Sistem', 'Login', 'Sistem', 'Berhasil', '::1', '2026-03-05 23:30:29'),
+(9, 'ed1d0200-1690-11f1-ac09-088fc387a463', 'admin@dishup.com', 'Login', 'Login Sistem', 'Login', 'Sistem', 'Berhasil', '::1', '2026-03-06 00:20:43');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_pju`
+--
+
+CREATE TABLE `tbl_pju` (
+  `id` int NOT NULL,
+  `nama` varchar(255) NOT NULL,
+  `lokasi` text,
+  `kecamatan` varchar(100) DEFAULT NULL,
+  `lat` decimal(10,8) NOT NULL,
+  `lng` decimal(11,8) NOT NULL,
+  `status` enum('aktif','rusak','perbaikan') DEFAULT 'aktif',
+  `tahun` year DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `tbl_pju`
+--
+
+INSERT INTO `tbl_pju` (`id`, `nama`, `lokasi`, `kecamatan`, `lat`, `lng`, `status`, `tahun`, `created_at`, `updated_at`) VALUES
+(1, '10BJB-0', '2024-09-04T05:16', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45156698', '114.87406896', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(2, '11BJB-1', '2024-09-04T05:17', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45169597', '114.87442201', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(3, '12BJB-2', '2024-09-04T05:19', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45197802', '114.87516196', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(4, '13BJB-3', '2024-09-04T05:20', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45216896', '114.87583897', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(5, '14BJB-4', '2024-09-04T05:21', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45230400', '114.87627801', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(6, '15BJB-5', '2024-09-04T05:22', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45242604', '114.87668999', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(7, '16BJB-6', '2024-09-04T05:23', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45253299', '114.87708896', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(8, '17BJB-7', '2024-09-04T05:24', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45268898', '114.87724897', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(9, '18BJB-8', '2024-09-04T05:25', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45277598', '114.87742499', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(10, '19BJB-9', '2024-09-04T05:27', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45292199', '114.87799002', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(11, '1BJB-10', '2024-09-04T05:07', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45043601', '114.87057002', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(12, '20BJB-11', '2024-09-04T05:27', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45305300', '114.87818599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(13, '21BJB-12', '2024-09-04T05:29', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45329499', '114.87875403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(14, '22BJB-13', '2024-09-04T05:33', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45334796', '114.87908897', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(15, '23BJB-14', '2024-09-04T05:33', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45345802', '114.87942198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(16, '24BJB-15', '2024-09-04T05:36', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45379497', '114.88105704', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(17, '25BJB-16', '2024-09-04T05:38', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45390502', '114.88153397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(18, '26BJB-17', '2024-09-04T05:40', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45400997', '114.88189599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(19, '27BJB-18', '2024-09-04T05:43', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45422002', '114.88294004', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(20, '28BJB-19', '2024-09-04T05:44', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45439998', '114.88355602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(21, '29BJB-20', '2024-09-04T05:47', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45470499', '114.88437703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(22, '2BJB-21', '2024-09-04T05:09', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45060004', '114.87103698', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(23, '30BJB-22', '2024-09-04T05:50', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45461799', '114.88501598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(24, '31BJB-23', '2024-09-04T05:55', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45455898', '114.88549501', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(25, '32BJB-24', '2024-09-04T05:56', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45497397', '114.88636798', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(26, '33BJB-25', '2024-09-04T05:57', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45519500', '114.88689101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(27, '34BJB-26', '2024-09-04T05:58', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45529701', '114.88726996', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(28, '35BJB-27', '2024-09-04T06:48', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45892201', '114.90338903', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(29, '36BJB-28', '2024-09-04T06:50', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45883199', '114.90300003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(30, '37BJB-29', '2024-09-04T06:52', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45871003', '114.90249602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(31, '38BJB-30', '2024-09-04T06:53', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45865698', '114.90214499', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(32, '39BJB-31', '2024-09-04T06:54', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45856897', '114.90175397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(33, '3BJB-32', '2024-09-04T05:09', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45069199', '114.87130403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(34, '40BJB-33', '2024-09-04T06:56', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45847802', '114.90134904', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(35, '41BJB-34', '2024-09-04T06:57', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45840401', '114.90095300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(36, '42BJB-35', '2024-09-04T06:59', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45830997', '114.90061403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(37, '43BJB-36', '2024-09-04T07:01', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45823403', '114.90026803', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(38, '44BJB-37', '2024-09-04T07:01', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45813696', '114.89995203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(39, '45BJB-38', '2024-09-04T07:02', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45807703', '114.89966503', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(40, '46BJB-39', '2024-09-04T07:03', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45802397', '114.89935700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(41, '47BJB-40', '2024-09-04T07:04', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45791400', '114.89893698', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(42, '48BJB-41', '2024-09-04T07:05', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45783999', '114.89853800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(43, '49BJB-42', '2024-09-04T07:06', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45776497', '114.89828303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(44, '4BJB-43', '2024-09-04T05:11', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45087899', '114.87189696', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(45, '50BJB-44', '2024-09-04T07:07', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45767604', '114.89786603', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(46, '5BJB-45', '2024-09-04T05:12', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45097404', '114.87224104', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(47, '6BJB-46', '2024-09-04T05:13', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45110203', '114.87256701', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(48, '7BJB-47', '2024-09-04T05:13', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45117998', '114.87284797', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(49, '8BJB-48', '2024-09-04T05:15', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45133496', '114.87327796', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(50, '9BJB-49', '2024-09-04T05:16', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45144602', '114.87365599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(51, 'Titik mulai Track-50', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45044749', '114.87055737', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(52, 'Titik mulai Track 001-51', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45382204', '114.88105855', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(53, 'Titik mulai Track 002-52', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45896074', '114.90336087', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(54, 'Titik akhir Track-53', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45347344', '114.87941092', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(55, 'Titik akhir Track 001-54', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45531142', '114.88724599', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(56, 'Titik akhir Track 002-55', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.45771041', '114.89782856', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(57, '10AWB-56', '2024-09-04T09:03', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48675203', '114.96691103', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(58, '11AWB-57', '2024-09-04T09:04', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48668003', '114.96753599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(59, '12AWB-58', '2024-09-04T09:09', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48765803', '114.97169701', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(60, '13AWB-59', '2024-09-04T09:14', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49179902', '114.97678097', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(61, '14AWB-60', '2024-09-04T09:15', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49159802', '114.97646598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(62, '15AWB-61', '2024-09-04T09:16', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49135101', '114.97632399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(63, '16AWB-62', '2024-09-04T09:19', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49204101', '114.97717299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(64, '17AWB-63', '2024-09-04T09:22', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49222097', '114.97756803', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(65, '18AWB-64', '2024-09-04T09:23', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49238500', '114.97783701', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(66, '19AWB-65', '2024-09-04T09:23', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49254400', '114.97813499', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(67, '1AWB-66', '2024-09-04T08:39', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48922804', '114.94859800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(68, '20AWB-67', '2024-09-04T09:29', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49303803', '114.97907703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(69, '21AWB-68', '2024-09-04T09:32', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49339896', '114.98458000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(70, '22AWB-69', '2024-09-04T09:34', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49376198', '114.98481201', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(71, '23AWB-70', '2024-09-04T09:35', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49399298', '114.98510697', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(72, '24AWB-71', '2024-09-04T09:36', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49429297', '114.98546102', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(73, '25AWB-72', '2024-09-04T09:37', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49449003', '114.98595002', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(74, '26AWB-73', '2024-09-04T09:38', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49471299', '114.98650004', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(75, '27AWB-74', '2024-09-04T09:40', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49469698', '114.98825496', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(76, '28AWB-75', '2024-09-04T09:42', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49453303', '114.98912098', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(77, '29AWB-76', '2024-09-04T09:44', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49426397', '114.99015003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(78, '2AWB-77', '2024-09-04T08:41', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48921396', '114.94826599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(79, '30AWB-78', '2024-09-04T09:47', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49394403', '114.99204501', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(80, '31AWB-79', '2024-09-04T09:49', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49503502', '114.99438398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(81, '32AWB-80', '2024-09-04T09:51', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49538396', '114.99689503', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(82, '33AWB-81', '2024-09-04T09:53', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49588101', '114.99830604', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(83, '34AWB-82', '2024-09-04T09:58', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49659598', '115.00104600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(84, '35AWB-83', '2024-09-04T10:00', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49516100', '115.00270402', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(85, '36AWB-84', '2024-09-04T10:02', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49437797', '115.00336502', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(86, '37AWB-85', '2024-09-04T10:03', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49527600', '115.00516302', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(87, '38AWB-86', '2024-09-04T10:05', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49503402', '115.00748296', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(88, '39AWB-87', '2024-09-04T10:07', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49487904', '115.00872700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(89, '3AWB-88', '2024-09-04T08:42', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48937204', '114.94766400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(90, '40AWB-89', '2024-09-04T10:08', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49478700', '115.01109296', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(91, '41AWB-90', '2024-09-04T10:15', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49202500', '115.02370002', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(92, '42AWB-91', '2024-09-04T10:16', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49168603', '115.02502704', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(93, '43AWB-92', '2024-09-04T10:18', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49039799', '115.02716300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(94, '44AWB-93', '2024-09-04T10:19', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48982701', '115.02860804', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(95, '45AWB-94', '2024-09-04T10:22', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48914296', '115.03391596', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(96, '46AWB-95', '2024-09-04T10:24', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48747597', '115.03684703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(97, '47AWB-96', '2024-09-04T10:25', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48685001', '115.03925297', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(98, '48AWB-97', '2024-09-04T10:28', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48559599', '115.04194398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(99, '49AWB-98', '2024-09-04T10:32', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48642798', '115.04949398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(100, '4AWB-99', '2024-09-04T08:45', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48928998', '114.94917400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(101, '50AWB-100', '2024-09-04T10:36', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48857199', '115.05708002', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(102, '51AWB-101', '2024-09-04T10:37', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48774604', '115.05935404', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(103, '52AWB-102', '2024-09-04T10:46', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48705696', '115.06087803', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(104, '53AWB-103', '2024-09-04T10:49', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48713499', '115.06220900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(105, '54AWB-104', '2024-09-04T10:51', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48613604', '115.06371698', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(106, '55AWB-105', '2024-09-04T10:52', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48556800', '115.06457898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(107, '56AWB-106', '2024-09-04T10:54', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48493701', '115.06576099', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(108, '57AWB-107', '2024-09-04T10:55', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48450702', '115.06657203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(109, '58AWB-108', '2024-09-04T10:57', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48384803', '115.06689096', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(110, '59AWB-109', '2024-09-04T10:58', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48252101', '115.06699297', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(111, '5AWB-110', '2024-09-04T08:49', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48928998', '114.95291803', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(112, '60AWB-111', '2024-09-04T11:00', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48128200', '115.06731399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(113, '61AWB-112', '2024-09-04T11:02', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.47987903', '115.06781003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(114, '62AWB-113', '2024-09-04T11:03', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48051799', '115.06935901', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(115, '63AWB-114', '2024-09-04T11:06', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.47523202', '115.07586898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(116, '64AWB-115', '2024-09-04T11:07', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.47455996', '115.07595900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(117, '65AWB-116', '2024-09-04T11:10', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.46962797', '115.08220503', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(118, '66AWB-117', '2024-09-04T11:11', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.46943200', '115.08237996', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(119, '67AWB-118', '2024-09-04T11:13', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.47001001', '115.08205600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(120, '68AWB-119', '2024-09-04T11:32', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42206896', '115.15562003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(121, '69AWB-120', '2024-09-04T11:35', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42165498', '115.15592303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(122, '6AWB-121', '2024-09-04T08:51', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48914799', '114.95331399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(123, '70AWB-122', '2024-09-04T11:40', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42155700', '115.15593602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(124, '71AWB-123', '2024-09-04T11:36', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42113396', '115.15612998', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(125, '7AWB-124', '2024-09-04T09:02', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48674901', '114.96650602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(126, '8AWB-125', '2024-09-04T09:01', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48670299', '114.96612003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(127, '9AWB-126', '2024-09-04T09:00', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48660501', '114.96573597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(128, 'Titik mulai Track-127', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48924262', '114.94858257', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(129, 'Titik mulai Track 001-128', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48924271', '114.94858610', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(130, 'Titik mulai Track 003-129', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48929895', '114.95291158', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(131, 'Titik mulai Track 004-130', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48661222', '114.96572541', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(132, 'Titik mulai Track 005-131', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49136836', '114.97631913', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(133, 'Titik mulai Track 006-132', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49342050', '114.98457673', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(134, 'Titik mulai Track 007-133', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49212491', '115.02363984', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(135, 'Titik mulai Track 008-134', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48867081', '115.05704708', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(136, 'Titik mulai Track 009-135', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.47533981', '115.07584702', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(137, 'Titik mulai Track 010-136', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.47002259', '115.08204502', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(138, 'Titik mulai Track 011-137', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42208045', '115.15561994', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(139, 'Titik akhir Track-138', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48939358', '114.94764162', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(140, 'Titik akhir Track 001-139', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48930557', '114.94916067', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(141, 'Titik akhir Track 003-140', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48916417', '114.95331072', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(142, 'Titik akhir Track 004-141', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48669645', '114.96752626', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(143, 'Titik akhir Track 005-142', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49307978', '114.97905155', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(144, 'Titik akhir Track 006-143', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49484517', '115.01104292', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(145, 'Titik akhir Track 007-144', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48653686', '115.04941687', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(146, 'Titik akhir Track 008-145', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48063156', '115.06923161', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(147, 'Titik akhir Track 009-146', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.47459416', '115.07591282', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(148, 'Titik akhir Track 010-147', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.46944583', '115.08237183', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(149, 'Titik akhir Track 011-148', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42114997', '115.15611783', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(150, '10KTB-149', '2024-09-05T06:55', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48798400', '116.04823002', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(151, '11KTB-150', '2024-09-05T06:56', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49019196', '116.04646303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(152, '12KTB-151', '2024-09-05T06:57', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49049203', '116.04570304', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(153, '13KTB-152', '2024-09-05T06:57', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49039396', '116.04512100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(154, '14KTB-153', '2024-09-05T06:59', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49273201', '116.04462597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(155, '15KTB-154', '2024-09-05T07:00', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.49714198', '116.04352299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(156, '16KTB-155', '2024-09-05T07:04', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.50647003', '116.04265898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(157, '17KTB-156', '2024-09-05T07:04', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.50724896', '116.04267701', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(158, '18KTB-157', '2024-09-05T07:05', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.50872904', '116.04246897', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(159, '19KTB-158', '2024-09-05T07:06', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.51050399', '116.04269402', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(160, '1KTB-159', '2024-09-05T06:44', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.47845403', '116.05401504', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(161, '20KTB-160', '2024-09-05T07:07', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.51179397', '116.04273501', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(162, '21KTB-161', '2024-09-05T07:08', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.51248397', '116.04242203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(163, '22KTB-162', '2024-09-05T07:09', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.51685999', '116.04189103', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(164, '23KTB-163', '2024-09-05T07:14', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.52732899', '116.04602197', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(165, '24KTB-164', '2024-09-05T07:27', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.52991497', '116.04703702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(166, '25KTB-165', '2024-09-05T07:31', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.54245103', '116.04806003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(167, '26KTB-166', '2024-09-05T07:32', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.54354202', '116.04781704', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(168, '27KTB-167', '2024-09-05T07:34', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.54840897', '116.04682496', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(169, '28KTB-168', '2024-09-05T07:38', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.55621696', '116.03955299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(170, '29KTB-169', '2024-09-05T07:40', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.55808504', '116.03897899', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(171, '2KTB-170', '2024-09-05T06:45', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.47970402', '116.05362101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(172, '30KTB-171', '2024-09-05T07:42', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.56125901', '116.04106500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(173, '31KTB-172', '2024-09-05T07:45', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.56459401', '116.04116198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(174, '32KTB-173', '2024-09-05T07:54', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.58199199', '116.04584000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(175, '33KTB-174', '2024-09-05T08:09', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.59909602', '116.02296797', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(176, '34KTB-175', '2024-09-05T08:11', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.60059503', '116.02197203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(177, '35KTB-176', '2024-09-05T08:15', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.60363901', '116.01814301', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(178, '36KTB-177', '2024-09-05T08:16', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.60392600', '116.01790203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(179, '37KTB-178', '2024-09-05T08:59', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.62560202', '116.01054699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(180, '38KTB-179', '2024-09-05T09:02', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.62485402', '116.01035899', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(181, '39KTB-180', '2024-09-05T09:42', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66240503', '116.01066300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(182, '3KTB-181', '2024-09-05T06:50', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48005304', '116.05349201', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(183, '40KTB-182', '2024-09-05T09:41', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66268801', '116.01123397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(184, '41KTB-183', '2024-09-05T09:23', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66308698', '116.01161703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(185, '42KTB-184', '2024-09-05T09:28', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66340499', '116.01190997', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(186, '43KTB-185', '2024-09-05T09:29', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66402400', '116.01207602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(187, '44KTB-186', '2024-09-05T09:31', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66603599', '116.01212103', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(188, '45KTB-187', '2024-09-05T09:32', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66641401', '116.01172800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(189, '46KTB-188', '2024-09-05T09:32', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66706898', '116.01162700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(190, '47KTB-189', '2024-09-05T09:33', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66781304', '116.01187703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(191, '48KTB-190', '2024-09-05T09:35', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66920804', '116.01201902', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(192, '49KTB-191', '2024-09-05T09:37', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66997900', '116.01213302', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(193, '4KTB-192', '2024-09-05T06:51', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48060600', '116.05328296', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(194, '50KTB-193', '2024-09-05T09:43', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.66061298', '116.01048798', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(195, '5KTB-194', '2024-09-05T06:52', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48237198', '116.05219298', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(196, '6KTB-195', '2024-09-05T06:52', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48318603', '116.05126301', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(197, '7KTB-196', '2024-09-05T06:53', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48377603', '116.05053303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(198, '8KTB-197', '2024-09-05T06:54', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48498101', '116.04980003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(199, '9KTB-198', '2024-09-05T06:54', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.48595398', '116.04942997', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(200, '10TALA-199', '2024-09-05T20:29', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06060700', '114.64622200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(201, '11TALA-200', '2024-09-05T20:30', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06024500', '114.64645800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(202, '12TALA-201', '2024-09-05T20:31', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05987300', '114.64670200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(203, '13TALA-202', '2024-09-05T20:32', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05957000', '114.64706400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(204, '14TALA-203', '2024-09-05T20:33', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05932300', '114.64741500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(205, '15TALA-204', '2024-09-05T20:34', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05906300', '114.64778700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(206, '16TALA-205', '2024-09-05T20:35', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05880300', '114.64815400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(207, '17TALA-206', '2024-09-05T20:36', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05852600', '114.64857700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(208, '18TALA-207', '2024-09-05T20:37', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05827800', '114.64891100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(209, '19TALA-208', '2024-09-05T20:38', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05801100', '114.64928500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(210, '1TALA-209', '2024-09-05T20:13', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06381900', '114.64443100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(211, '20TALA-210', '2024-09-05T20:39', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05781400', '114.64959100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(212, '2TALA-211', '2024-09-05T20:16', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06428200', '114.64432500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(213, '3TALA-212', '2024-09-05T20:21', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06333500', '114.64464400', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(214, '4TALA-213', '2024-09-05T20:22', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06290200', '114.64479600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(215, '5TALA-214', '2024-09-05T20:23', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06252300', '114.64495300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(216, '6TALA-215', '2024-09-05T20:24', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06213000', '114.64519600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(217, '7TALA-216', '2024-09-05T20:26', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06175900', '114.64545000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(218, '8TALA-217', '2024-09-05T20:27', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06142300', '114.64567700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(219, '9TALA-218', '2024-09-05T20:28', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.06104300', '114.64592200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(220, 'Titik 21-219', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05758600', '114.64998600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(221, 'Titik 22-220', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05736500', '114.65038200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(222, 'Titik 23-221', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05716700', '114.65078700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(223, 'Titik 24-222', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05701400', '114.65125600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(224, 'Titik 25-223', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05691000', '114.65173900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(225, 'Titik 26-224', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05681300', '114.65222700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(226, 'Titik 27-225', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05672800', '114.65267800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(227, 'Titik 28-226', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05665300', '114.65315600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(228, 'Titik 29-227', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05661600', '114.65361300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(229, 'Titik 30-228', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05658300', '114.65409300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(230, 'Titik 31-229', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05656200', '114.65457600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(231, 'Titik 32-230', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05653500', '114.65502100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(232, 'Titik 33-231', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05651200', '114.65552000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(233, 'Titik 34-232', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05647700', '114.65599300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(234, 'Titik 35-233', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05653300', '114.65648600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(235, 'Titik 36-234', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05670700', '114.65693900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(236, 'Titik 37-235', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05690500', '114.65738700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(237, 'Titik 38-236', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05709300', '114.65781600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(238, 'Titik 39-237', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05731200', '114.65824800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(239, 'Titik 40-238', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-4.05750400', '114.65864700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(240, 'P10T-239', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89704899', '115.59382198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(241, 'P11T-240', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89743003', '115.59376901', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(242, 'P12T-241', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89797100', '115.59362099', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(243, 'P13T-242', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89834299', '115.59355603', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(244, 'P14T-243', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.90079603', '115.59229899', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(245, 'P15T-244', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.90115101', '115.59201602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(246, 'P16T-245', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.90145804', '115.59173397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(247, 'P17T-246', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.90224602', '115.59122200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(248, 'P18T-247', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.90269797', '115.59114296', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(249, 'P19T-248', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.90317700', '115.59106400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(250, 'P1T-249', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89320303', '115.59482999', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(251, 'P20-250', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.90355703', '115.59082696', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(252, 'P2T-251', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89354200', '115.59484198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(253, 'P3T-252', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89389303', '115.59485799', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(254, 'P4T-253', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89427298', '115.59484097', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(255, 'P5T-254', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89466299', '115.59464098', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(256, 'P6T-255', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89519600', '115.59433898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(257, 'P7T-256', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89583403', '115.59410697', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(258, 'P8T-257', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89635899', '115.59396003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(259, 'P9T-258', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89669200', '115.59391402', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(260, 'Titik mulai Jejak Sekarang: 04 SEP 2024 21:23-259', 'Rabu, 04 September 2024 21.23 WITA Ketinggian: 74 m', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.89296742', '115.59497416', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(261, 'Titik akhir Jejak Sekarang: 04 SEP 2024 21:23-260', 'Rabu, 04 September 2024 21.54 WITA Ketinggian: 61 m', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-1.90354018', '115.59081590', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(262, 'P10B-261', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22582296', '114.76534101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(263, 'P11B-262', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22545801', '114.76552399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(264, 'P12B-263', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22505501', '114.76573697', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(265, 'P13B-264', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22469702', '114.76590998', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(266, 'P14B-265', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22432796', '114.76607803', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(267, 'P15B-266', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22396000', '114.76627098', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(268, 'P16B-267', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22359304', '114.76646603', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(269, 'P17B-268', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22324804', '114.76663099', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(270, 'P18B-269', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22284596', '114.76681899', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(271, 'P19B-270', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22249400', '114.76700499', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(272, 'P1B-271', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22904396', '114.76374200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(273, 'P20B-272', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22211900', '114.76720599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(274, 'P21B-273', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22175397', '114.76740598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(275, 'P22B-274', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22137301', '114.76759801', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(276, 'P23B-275', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22102700', '114.76778802', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00');
+INSERT INTO `tbl_pju` (`id`, `nama`, `lokasi`, `kecamatan`, `lat`, `lng`, `status`, `tahun`, `created_at`, `updated_at`) VALUES
+(277, 'P24B-276', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22067404', '114.76797201', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(278, 'P25B-277', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22031496', '114.76815800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(279, 'P2B-278', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22864599', '114.76394802', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(280, 'P3B-279', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22829898', '114.76413100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(281, 'P4B-280', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22797703', '114.76429302', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(282, 'P5B-281', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22762197', '114.76443199', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(283, 'P6B-282', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22727596', '114.76461397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(284, 'P7B-283', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22692200', '114.76480197', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(285, 'P8B-284', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22655898', '114.76500196', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(286, 'P9B-285', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22618699', '114.76516801', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(287, 'Titik mulai Track 001-286', 'Kamis, 05 September 2024 21.14 WITA Ketinggian: 14 m', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22931780', '114.76361442', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(288, 'Titik akhir Track 001-287', 'Kamis, 05 September 2024 21.44 WITA Ketinggian: 2 m', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22029233', '114.76817527', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(289, 'P10A-288', '2024-04-19T01:56', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41058699', '115.25179599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(290, 'P10HST-289', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68937898', '115.32092700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(291, 'P10HSU-290', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49251699', '115.19147404', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(292, 'P11A-291', '2024-04-19T01:57', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41032698', '115.25190001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(293, 'P12A-292', '2024-04-19T01:58', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41003403', '115.25197403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(294, 'P13A-293', '2024-04-19T01:58', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40980303', '115.25203999', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(295, 'P15A-294', '2024-04-19T01:59', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40920104', '115.25217997', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(296, 'P16A-295', '2024-04-19T02:00', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40894799', '115.25225700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(297, 'P17A-296', '2024-04-19T02:00', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40867600', '115.25233403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(298, 'P18A-297', '2024-04-19T02:01', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40839303', '115.25240804', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(299, 'P19A-298', '2024-04-19T02:01', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40810896', '115.25243604', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(300, 'P1A-299', '2024-04-19T01:49', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41310500', '115.25112402', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(301, 'P1HSU-300', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49136297', '115.19329702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(302, 'P20A-301', '2024-04-19T02:01', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40782297', '115.25248004', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(303, 'P21A-302', '2024-04-19T02:02', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40752097', '115.25252002', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(304, 'P22A-303', '2024-04-19T02:02', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40725200', '115.25255799', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(305, 'P23A-304', '2024-04-19T02:03', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40691697', '115.25260099', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(306, 'P24A-305', '2024-04-19T02:03', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40661598', '115.25265003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(307, 'P25A-306', '2024-04-19T02:04', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40633401', '115.25271096', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(308, 'P26A-307', '2024-04-19T02:04', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40604500', '115.25275304', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(309, 'P28A-308', '2024-04-19T02:06', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40547503', '115.25284901', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(310, 'P29A-309', '2024-04-19T02:06', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40518703', '115.25290903', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(311, 'P2A-310', '2024-04-19T01:50', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41283300', '115.25117003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(312, 'P2HST-311', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68476197', '115.32371197', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(313, 'P2HSU-312', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49110900', '115.19360597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(314, 'P30A-313', '2024-04-19T02:06', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40487698', '115.25295001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(315, 'P31A-314', '2024-04-19T02:07', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40458001', '115.25300399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(316, 'P32A-315', '2024-04-19T02:07', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40435203', '115.25316400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(317, 'P34A-316', '2024-04-19T02:08', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40398398', '115.25362803', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(318, 'P35A-317', '2024-04-19T02:09', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40381500', '115.25386096', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(319, 'P36A-318', '2024-04-19T02:09', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40365499', '115.25409096', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(320, 'P37A-319', '2024-04-19T02:10', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40349397', '115.25433403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(321, 'P38A-320', '2024-04-19T02:10', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40331703', '115.25457996', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(322, 'P3A-321', '2024-04-19T01:51', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41254802', '115.25121002', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(323, 'P3HST-322', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68527302', '115.32379403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(324, 'P3HSU-323', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49078303', '115.19389196', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(325, 'P40A-324', '2024-04-19T02:11', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40296499', '115.25501900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(326, 'P41A-325', '2024-04-19T02:12', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40274899', '115.25523299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(327, 'P42A-326', '2024-04-19T02:12', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40255101', '115.25547900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(328, 'P43A-327', '2024-04-19T02:13', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40237499', '115.25567296', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(329, 'P44A-328', '2024-04-19T02:13', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40219704', '115.25586901', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(330, 'P45A-329', '2024-04-19T02:14', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40202496', '115.25609499', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(331, 'P46A-330', '2024-04-19T02:15', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40183804', '115.25630504', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(332, 'P47A-331', '2024-04-19T02:15', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40165498', '115.25652104', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(333, 'P49A-332', '2024-04-19T02:16', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40128903', '115.25694801', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(334, 'P4A-333', '2024-04-19T01:52', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41230503', '115.25130004', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(335, 'P4HST-334', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68579203', '115.32383904', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(336, 'P4HSU-335', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49048597', '115.19413697', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(337, 'P50A-336', '2024-04-19T02:17', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40109901', '115.25717801', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(338, 'P51A-337', '2024-04-19T02:18', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40092198', '115.25738304', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(339, 'P52A-338', '2024-04-19T02:19', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40074102', '115.25757699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(340, 'P53A-339', '2024-04-19T02:19', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40056701', '115.25779601', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(341, 'P54A-340', '2024-04-19T02:20', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40047799', '115.25808301', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(342, 'P55A-341', '2024-04-19T02:20', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40044304', '115.25834603', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(343, 'P58A-342', '2024-04-19T02:22', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40039996', '115.25916704', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(344, 'P59A-343', '2024-04-19T02:22', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40043298', '115.25945496', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(345, 'P5A-344', '2024-04-19T01:53', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41204100', '115.25137397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(346, 'P5HSU-345', '1', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49004902', '115.19439999', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(347, 'P5HST-346', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68617500', '115.32376402', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(348, 'P60A-347', '2024-04-19T02:23', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40049400', '115.25974598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(349, 'P61A-348', '2024-04-19T02:23', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40056198', '115.26002702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(350, 'P63A-349', '2024-04-19T02:24', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40068503', '115.26052097', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(351, 'P64A-350', '2024-04-19T02:25', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40068603', '115.26078299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(352, 'P66A-351', '2024-04-19T02:26', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40045603', '115.26135497', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(353, 'P67A-352', '2024-04-19T02:27', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40036199', '115.26162000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(354, 'P68A-353', '2024-04-19T02:27', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40033399', '115.26187800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(355, 'P69A-354', '2024-04-19T02:28', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40031798', '115.26212300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(356, 'P6A-355', '2024-04-19T01:54', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41176599', '115.25147304', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(357, 'P6HST-356', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68782497', '115.32249399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(358, 'P6HSU-357', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49159297', '115.19305101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(359, 'P70A-358', '2024-04-19T02:29', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40027599', '115.26236700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(360, 'P7HST-359', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68805103', '115.32219300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(361, 'P7HSU-360', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49194903', '115.19272897', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(362, 'P8A-361', '2024-04-19T01:55', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41112301', '115.25164403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(363, 'P8HST-362', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68843099', '115.32179503', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(364, 'P8HSU-363', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49222103', '115.19227702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(365, 'P9A-364', '2024-04-19T01:56', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41082503', '115.25172902', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(366, 'P9HST-365', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68870901', '115.32144601', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(367, 'P9HSU-366', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49238296', '115.19184200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(368, 'PJ1HST-367', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68398992', '115.32393996', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(369, 'Titik mulai Jejak Sekarang: 04 SEP 2024 13:45-368', 'Rabu, 04 September 2024 13.45 WITA Ketinggian: -1 m', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68396427', '115.32380928', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(370, 'Titik akhir Jejak Sekarang: 04 SEP 2024 13:45-369', 'Rabu, 04 September 2024 14.25 WITA Ketinggian: 6 m', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.68941360', '115.32085181', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(371, 'P65A-370', '2024-04-19T02:26', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40056098', '115.26116302', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(372, 'P62A-371', '2024-04-19T02:24', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40061898', '115.26023900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(373, 'P57A-372', '2024-04-19T02:21', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40038596', '115.25890603', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(374, 'P56A-373', '2024-04-19T02:21', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40042896', '115.25862800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(375, 'P48A-374', '2024-04-19T02:15', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40147703', '115.25673000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(376, 'P39A-375', '2024-04-19T02:11', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40316004', '115.25479596', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(377, 'P33A-376', '2024-04-19T02:08', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40418296', '115.25338403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(378, 'P27A-377', '2024-04-19T02:05', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40577703', '115.25279000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(379, 'P14A-378', '2024-04-19T01:59', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40954302', '115.25210998', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(380, 'P7A-379', '2024-04-19T01:55', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41144496', '115.25154999', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(381, 'P1B-380', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41305190', '115.25121910', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(382, 'P3B-381', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41257860', '115.25132460', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(383, 'P4B-382', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41231730', '115.25138700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(384, 'P5B-383', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41206780', '115.25145600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(385, 'P6B-384', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41178100', '115.25154720', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(386, 'P7B-385', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41146480', '115.25164640', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(387, 'P8B-386', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41114690', '115.25173520', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(388, 'P9B-387', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41084720', '115.25181880', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(389, 'P11B-388', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41031870', '115.25197310', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(390, 'P12B-389', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.41004260', '115.25204820', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(391, 'P13B-390', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40979210', '115.25210450', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(392, 'P14B-391', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40953380', '115.25216680', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(393, 'P15B-392', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40918490', '115.25224110', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(394, 'P16B-393', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40891570', '115.25231350', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(395, 'P17B-394', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40864240', '115.25239040', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(396, 'P19B-395', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40810940', '115.25252320', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(397, 'P20B-396', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40783870', '115.25257280', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(398, 'P21B-397', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40753900', '115.25261960', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(399, 'P22B-398', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40726160', '115.25265980', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(400, 'P23B-399', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40693250', '115.25270760', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(401, 'P25B-400', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40635880', '115.25281070', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(402, 'P26B-401', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40606760', '115.25285390', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(403, 'P27B-402', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40579830', '115.25290600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(404, 'P28B-403', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40549140', '115.25295780', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(405, 'P29B-404', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40520130', '115.25301230', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(406, 'P31B-405', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40459920', '115.25313920', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(407, 'P32B-406', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40442660', '115.25328030', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(408, 'P33B-407', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40426430', '115.25346560', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(409, 'P34B-408', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40407540', '115.25369620', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(410, 'P36B-409', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40373920', '115.25415210', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(411, 'P37B-410', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40356890', '115.25440010', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(412, 'P38B-411', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40338740', '115.25464990', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(413, 'P39B-412', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40323610', '115.25487180', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(414, 'P40B-413', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40304230', '115.25510500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(415, 'P41B-414', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40282520', '115.25532570', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(416, 'P42B-415', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40261530', '115.25554760', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(417, 'P43B-416', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40244000', '115.25574740', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(418, 'P45B-417', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40208970', '115.25615170', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(419, 'P46B-418', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40191100', '115.25638140', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(420, 'P47B-419', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40172560', '115.25660900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(421, 'P48B-420', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40155300', '115.25680580', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(422, 'P49B-421', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40137360', '115.25701500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(423, 'P50B-422', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40116090', '115.25724330', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(424, 'P51B-423', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40099400', '115.25743670', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(425, 'P52B-424', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40080910', '115.25765660', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(426, 'P54B-425', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40057750', '115.25810170', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(427, 'P55B-426', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40053060', '115.25835790', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(428, 'P56B-427', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40050130', '115.25863690', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(429, 'P57B-428', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40048550', '115.25890610', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(430, 'P58B-429', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40049090', '115.25916790', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(431, 'P59B-430', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40052310', '115.25945360', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(432, 'P61B-431', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40065950', '115.26002430', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(433, 'P62B-432', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40070680', '115.26023340', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(434, 'P63B-433', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40076620', '115.26052220', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(435, 'P64B-434', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40078280', '115.26079570', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(436, 'P65B-435', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40064760', '115.26119810', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(437, 'P66B-436', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40054810', '115.26140640', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(438, 'P67B-437', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40044880', '115.26164290', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(439, 'P68B-438', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40040900', '115.26188770', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(440, 'P70B-439', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.40039160', '115.26237320', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(441, 'P11HSU-440', '-2.49265, 115.19104', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49265720', '115.19104760', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(442, 'P12HSU-441', '-2.49278, 115.19059', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49278590', '115.19059430', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(443, 'P13HSU-442', '-2.49291, 115.19011', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49291370', '115.19011410', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(444, 'P14HSU-443', '-2.49303, 115.18963', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49303290', '115.18963930', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(445, 'P15HSU-444', '-2.49312, 115.1892', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49312800', '115.18920310', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(446, 'P16HSU-445', '-2.49326, 115.18876', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49326820', '115.18876920', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(447, 'P17HSU-446', '-2.49339, 115.18831', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49339760', '115.18831730', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(448, 'P18HSU-447', '-2.49363, 115.1879', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49363220', '115.18790380', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(449, 'P19HSU-448', '-2.49391, 115.18752', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49391620', '115.18752130', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(450, 'P20HSU-449', '-2.4942, 115.18713', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-2.49420220', '115.18713980', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(451, '119M-450', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37114597', '114.93917196', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(452, '141M-451', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36184700', '114.94453898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(453, 'P100-452', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37925596', '114.93560697', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(454, 'P101M-453', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37888003', '114.93586496', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(455, 'P102M-454', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37852003', '114.93610100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(456, 'P103-455', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37815299', '114.93635396', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(457, 'P104-456', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37775501', '114.93661104', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(458, 'P105-457', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37737003', '114.93685101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(459, 'P106-458', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37695999', '114.93710599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(460, 'P107-459', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37650402', '114.93738402', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(461, 'P108M-460', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37605600', '114.93752399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(462, 'P109M-461', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37555200', '114.93766003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(463, 'P10M-462', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44110896', '114.88176498', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(464, 'P110M-463', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37523298', '114.93775399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(465, 'P111M-464', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37491204', '114.93783203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(466, 'P112M-465', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37430804', '114.93801400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(467, 'P113M-466', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37381200', '114.93817904', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(468, 'P114M-467', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37341897', '114.93828700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(469, 'P115M-468', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37291497', '114.93843704', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(470, 'P116-469', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37250702', '114.93855396', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(471, 'P117M-470', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37198198', '114.93878597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(472, 'P118-471', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37151402', '114.93900198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(473, 'P11M-472', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44094400', '114.88214300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(474, 'P120M-473', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37075604', '114.93933197', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(475, 'P121M-474', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37027601', '114.93953104', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(476, 'P122M-475', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36993696', '114.93965501', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(477, 'P123M-476', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36942701', '114.93987001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(478, 'P124M-477', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36901101', '114.94003102', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(479, 'P125M-478', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36858697', '114.94016496', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(480, 'P126M-479', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36819696', '114.94030897', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(481, 'P127M-480', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36778700', '114.94046696', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(482, 'P128M-481', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36739196', '114.94059596', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(483, 'P129M-482', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36699299', '114.94076201', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(484, 'P12M-483', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44070503', '114.88258699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(485, 'P130M-484', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36647197', '114.94095203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(486, 'P131M-485', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36590803', '114.94122402', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(487, 'P132M-486', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36534997', '114.94161998', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(488, 'P133M-487', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36490296', '114.94198602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(489, 'P134M-488', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36457003', '114.94226497', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(490, 'P135M-489', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36422604', '114.94255397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(491, 'P136M-490', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36389897', '114.94283301', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(492, 'P137M-491', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36355104', '114.94312696', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(493, 'P138M-492', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36320202', '114.94341496', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(494, 'P139M-493', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36289398', '114.94365896', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(495, 'P13M-494', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44034998', '114.88302100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(496, 'P140M-495', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36252602', '114.94396599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(497, 'P141M-496', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36218102', '114.94426598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(498, 'P142M-497', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36142497', '114.94489303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(499, 'P143M-498', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36107503', '114.94515899', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(500, 'P144M-499', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.36071804', '114.94545403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(501, 'P145M-500', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35989301', '114.94612500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(502, 'P146M-501', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35852399', '114.94659296', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(503, 'P147M-502', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35793600', '114.94634402', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(504, 'P148M-503', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35696496', '114.94555302', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(505, 'P149M-504', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35644403', '114.94511297', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(506, 'P14M-505', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44001403', '114.88344597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(507, 'P150M-506', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35589199', '114.94490803', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(508, 'P151M-507', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35531096', '114.94485497', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(509, 'P152M-508', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35475901', '114.94485204', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(510, 'P153M-509', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35356199', '114.94486202', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(511, 'P154M-510', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35225701', '114.94461198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(512, 'P155M-511', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35183004', '114.94410404', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(513, 'P156M-512', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35149200', '114.94359400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(514, 'P157M-513', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35129502', '114.94327700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(515, 'P158M-514', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35110299', '114.94287601', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(516, 'P15M-515', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43975201', '114.88385199', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(517, 'P16M-516', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43945102', '114.88421299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(518, 'P17M-517', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43923200', '114.88455900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(519, 'P18M-518', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43890603', '114.88484197', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(520, 'P19M-519', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43852004', '114.88512796', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(521, 'P1M-520', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44219601', '114.87793202', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(522, 'P20M-521', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43817102', '114.88538797', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(523, 'P21M-522', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43772996', '114.88574797', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(524, 'P22M-523', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43729100', '114.88608702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(525, 'P23M-524', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43694097', '114.88635097', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(526, 'P24M-525', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43658801', '114.88658801', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(527, 'P25M-526', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43624201', '114.88682597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(528, 'P26M-527', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43590799', '114.88705798', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(529, 'P27M-528', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43552301', '114.88731598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(530, 'P28M-529', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43523601', '114.88760398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(531, 'P29M-530', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43492202', '114.88793699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(532, 'P2M-531', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44214496', '114.87833602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(533, 'P30M-532', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43453000', '114.88830303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(534, 'P31M-533', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43407000', '114.88864199', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(535, 'P32M-534', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43209598', '114.89005099', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(536, 'P33M-535', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43043502', '114.89118196', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(537, 'P34M-536', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42943900', '114.89181999', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(538, 'P35M-537', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42897196', '114.89214798', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(539, 'P36M-538', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42786002', '114.89286597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(540, 'P37M-539', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42658396', '114.89361699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(541, 'P38M-540', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42600100', '114.89396601', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(542, 'P39M-541', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42547604', '114.89424999', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(543, 'P3M-542', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44209400', '114.87878303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(544, 'P40M-543', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42341099', '114.89543301', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(545, 'P41M-544', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42230701', '114.89591598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(546, 'P42M-545', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42188397', '114.89612100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(547, 'P43M-546', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42146597', '114.89625997', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(548, 'P44M-547', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42098703', '114.89644999', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(549, 'P45M-548', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42038596', '114.89668703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(550, 'P46M-549', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41907897', '114.89703001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(551, 'P47M-550', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41853197', '114.89726798', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(552, 'P48M-551', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41407103', '114.90725401', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(553, 'P49M-552', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41325397', '114.90832597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(554, 'P4M-553', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44199501', '114.87924001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(555, 'P50M-554', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41265902', '114.90899099', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(556, 'P51M-555', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41056799', '114.91185098', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(557, 'P52M-556', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41017303', '114.91259697', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00');
+INSERT INTO `tbl_pju` (`id`, `nama`, `lokasi`, `kecamatan`, `lat`, `lng`, `status`, `tahun`, `created_at`, `updated_at`) VALUES
+(558, 'P53M-557', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40717600', '114.91702798', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(559, 'P54M-558', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40664500', '114.91734398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(560, 'P55M-559', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40620596', '114.91759703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(561, 'P56M-560', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40558402', '114.91791696', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(562, 'P57M-561', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40505596', '114.91819600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(563, 'P58M-562', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40423102', '114.91863403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(564, 'P59M-563', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40389096', '114.91892799', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(565, 'P5M-564', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44183601', '114.87968300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(566, 'P60M-565', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40326802', '114.91928204', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(567, 'P61M-566', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40272102', '114.91961597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(568, 'P62M-567', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40205901', '114.91999702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(569, 'P63M-568', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40054298', '114.92092104', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(570, 'P64M-569', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39967696', '114.92230799', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(571, 'P65M-570', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39924797', '114.92325800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(572, 'P66M-571', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39802003', '114.92441101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(573, 'P67M-572', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39722500', '114.92446197', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(574, 'P68M-573', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39573998', '114.92502398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(575, 'P69M-574', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39486399', '114.92563703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(576, 'P6M-575', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44168203', '114.88006001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(577, 'P70M-576', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39411196', '114.92614699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(578, 'P71M-577', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39099599', '114.92794096', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(579, 'P72M-578', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39058796', '114.92819997', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(580, 'P73M-579', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.39012603', '114.92850004', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(581, 'P74M-580', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38982797', '114.92869198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(582, 'P75M-581', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38949999', '114.92891603', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(583, 'P76M-582', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38916899', '114.92913597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(584, 'P77M-583', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38881502', '114.92938802', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(585, 'P78M-584', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38844202', '114.92963604', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(586, 'P79M-585', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38804900', '114.92989697', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(587, 'P7M-586', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44154398', '114.88055496', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(588, 'P80M-587', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38764901', '114.93015203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(589, 'P81M-588', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38727702', '114.93039602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(590, 'P82M-589', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38691501', '114.93063298', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(591, 'P83M-590', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38648804', '114.93092702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(592, 'P84M-591', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38588202', '114.93130596', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(593, 'P85M-592', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38538498', '114.93165499', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(594, 'P86M-593', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38496102', '114.93191198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(595, 'P87M-594', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38464402', '114.93212697', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(596, 'P88M-595', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38429801', '114.93235203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(597, 'P89M-596', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38376199', '114.93270298', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(598, 'P8M-597', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44138397', '114.88099099', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(599, 'P90M-598', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38322697', '114.93303498', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(600, 'P91M-599', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38281198', '114.93332600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(601, 'P92-600', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38245198', '114.93355399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(602, 'P93-601', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38198000', '114.93386496', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(603, 'P94M-602', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38149301', '114.93416101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(604, 'P95M-603', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38104399', '114.93446996', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(605, 'P96M-604', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38068298', '114.93469100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(606, 'P97M-605', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38034804', '114.93491597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(607, 'P98M-606', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37998996', '114.93514001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(608, 'P99M-607', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37962099', '114.93537898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(609, 'P9M-608', 'Lokasi PJU', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44125204', '114.88135602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(610, 'Titik mulai Jejak Sekarang: 05 SEP 2024 16:03-609', 'Kamis, 05 September 2024 16.03 WITA Ketinggian: 32 m', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44221059', '114.87765340', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(611, 'Titik akhir Jejak Sekarang: 05 SEP 2024 16:03-610', 'Kamis, 05 September 2024 19.12 WITA Ketinggian: 12 m', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.35108472', '114.94239589', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(612, '001-611', '2024-09-04T14:03', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22308602', '115.64753599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(613, '002-612', '2024-09-04T14:04', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22300698', '115.64708898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(614, '003-613', '2024-09-04T14:06', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22280103', '115.64667399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(615, '004-614', '2024-09-04T14:07', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22271202', '115.64625598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(616, '005-615', '2024-09-04T14:08', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22258897', '115.64582599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(617, '006-616', '2024-09-04T14:09', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22244002', '115.64538502', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(618, '007-617', '2024-09-04T14:10', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22229904', '115.64495704', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(619, '008-618', '2024-09-04T14:11', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22215697', '115.64452001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(620, '009-619', '2024-09-04T14:12', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22200299', '115.64409203', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(621, '010-620', '2024-09-04T14:13', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22184198', '115.64366799', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(622, '011-621', '2024-09-04T14:14', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22170401', '115.64325401', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(623, '012-622', '2024-09-04T14:15', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22155397', '115.64282703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(624, '013-623', '2024-09-04T14:15', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22141701', '115.64239897', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(625, '014-624', '2024-09-04T14:16', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22124996', '115.64196504', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(626, '015-625', '2024-09-04T14:17', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22111401', '115.64157100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(627, '016-626', '2024-09-04T14:18', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22096196', '115.64113900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(628, '017-627', '2024-09-04T14:19', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22081000', '115.64073499', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(629, '018-628', '2024-09-04T14:19', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22062903', '115.64028597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(630, '019-629', '2024-09-04T14:20', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22043700', '115.63985104', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(631, '020-630', '2024-09-04T14:21', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22027900', '115.63942901', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(632, '021-631', '2024-09-04T14:22', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.22011899', '115.63900597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(633, '022-632', '2024-09-04T14:27', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21938197', '115.63643499', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(634, '023-633', '2024-09-04T14:28', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21929103', '115.63599503', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(635, '024-634', '2024-09-04T14:29', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21917804', '115.63561298', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(636, '025-635', '2024-09-04T14:31', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21905499', '115.63505198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(637, '026-636', '2024-09-04T14:32', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21892801', '115.63462601', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(638, '027-637', '2024-09-04T14:33', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21880697', '115.63417699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(639, '028-638', '2024-09-04T14:34', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21866398', '115.63375597', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(640, '029-639', '2024-09-04T14:34', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21852903', '115.63334500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(641, '030-640', '2024-09-04T14:35', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21840699', '115.63289498', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(642, '031-641', '2024-09-04T14:36', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21826701', '115.63248402', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(643, '032-642', '2024-09-04T14:37', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21813902', '115.63204003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(644, '033-643', '2024-09-04T14:38', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21800801', '115.63161003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(645, '034-644', '2024-09-04T14:39', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21786803', '115.63120896', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(646, '035-645', '2024-09-04T14:40', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21772101', '115.63077302', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(647, '036-646', '2024-09-04T14:41', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21758296', '115.63031998', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(648, '037-647', '2024-09-04T14:41', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21744500', '115.62991002', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(649, '038-648', '2024-09-04T14:42', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21729999', '115.62948296', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(650, '039-649', '2024-09-04T14:43', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21717099', '115.62905196', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(651, '040-650', '2024-09-04T14:44', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21703998', '115.62862499', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(652, '041-651', '2024-09-04T14:45', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21691602', '115.62817404', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(653, '042-652', '2024-09-04T14:46', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21679699', '115.62775302', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(654, '043-653', '2024-09-04T14:47', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21667403', '115.62731003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(655, '044-654', '2024-09-04T14:47', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21655601', '115.62688398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(656, '045-655', '2024-09-04T14:48', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21645602', '115.62645097', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(657, '046-656', '2024-09-04T14:49', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21634898', '115.62601101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(658, '047-657', '2024-09-04T14:50', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21623297', '115.62558001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(659, '048-658', '2024-09-04T14:51', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21614203', '115.62512102', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(660, '049-659', '2024-09-04T14:52', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21604899', '115.62469698', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(661, '050-660', '2024-09-04T14:53', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.21593701', '115.62425299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(662, '1 JNL BTL-661', '2024-11-18T05:03', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41070604', '116.01286702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(663, '10 JNL BTL-662', '2024-11-18T05:40', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40425197', '116.01800303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(664, '2 JNL BTL-663', '2024-11-18T05:04', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41056396', '116.01313398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(665, '3 JNL BTL-664', '2024-11-18T05:08', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41110099', '116.01510901', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(666, '4 JNL BTL-665', '2024-11-18T05:09', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41110996', '116.01557102', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(667, '5 JNL BTL-666', '2024-11-18T05:12', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40945596', '116.01694196', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(668, '6 JNL BTL-667', '2024-11-18T05:49', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40806196', '116.01721102', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(669, '7 JNL BTL-668', '2024-11-18T05:18', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40689696', '116.01455103', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(670, '8 JNL BTL-669', '2024-11-18T05:30', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40212003', '116.01687600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(671, '9 JNL BTL-670', '2024-11-18T05:36', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40362299', '116.01825097', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(672, 'PJU REV BTL 1-671', '2024-11-11T07:00', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38263999', '115.97752498', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(673, 'PJU REV BTL 2-672', '2024-11-11T07:42', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38234704', '115.97714301', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(674, 'PJU REV BTL 3-673', '2024-11-11T08:54', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38188101', '115.97687303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(675, 'PJU REV BTL 4-674', '2024-11-11T08:55', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38118900', '115.97649501', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(676, 'PJU REV BTL 5-675', '2024-11-11T08:56', 'PJU TS 2024 0.1\" DINAS PERHUBUNGAN PROV KALSEL', '-3.38050202', '115.97616702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(677, 'RPPJ_RB_1-676', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.44433700', '114.81680700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(678, 'RPPJ_RB_2-677', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.44815700', '114.80401500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(679, 'RPPJ_RB_3-678', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.44499700', '114.70255500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(680, 'RPPJ_RB_4-679', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.42682700', '114.68501600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(681, 'RPPJ_RB_5-680', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.32505800', '114.69660600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(682, 'RPPJ_RB_6-681', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.29427400', '114.68718400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(683, 'RPPJ_RB_7-682', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.24122300', '114.61661000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(684, 'RPPJ_RB_8-683', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.21909200', '114.56490200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(685, 'RPPJ_RB_9-684', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.31985300', '114.61768100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(686, 'RPPJ_RB_10-685', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.28979500', '114.58942200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(687, 'RPPJ_RB_11-686', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.28224200', '114.56642900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(688, 'RPP_RB_12-687', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.22764500', '114.54427500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(689, '1-688', 'Culture Site Pasar Terapung Lok Baintan Floating Market Lok Baintan', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.29035900', '114.66148400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(690, '2-689', 'Infrastructure Site Museum Wasaka Wasaka Museum', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.30408900', '114.60904600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(691, '3-690', 'Intangible Site (Zahra Sasirangan) Kampung Tradisional Sasirangan Sasirangan Traditional Kampong', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.31208300', '114.60800000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(692, '4-691', 'Infrastructure Site Galeri Apung Sasirangan Floating Info Center', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.31258300', '114.60808300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(693, '5-692', 'Cultural Site RUmah Adat Tradisional Banjar Banjar Traditional Houses', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.30943000', '114.59520200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(694, '6-693', 'Natural Site Pulau Kembang Kembang Monkey Island', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.29961400', '114.56062800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(695, '7-694', 'Cultural Site Pembuatan Kapal Tradisional Sewangi Sewangi Traditional Shipyard', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.26480600', '114.56811100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(696, '8-695', 'Natural Site Konservasi Bekantan Curiak Long Nose Monkey Sanctuary', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.22527800', '114.54569400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(697, '9-696', 'Geological Site Pemandangan Tongkang Batubara Coal Brage Sightview', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.21703600', '114.56207500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(698, 'RPPJ_RT_1-697', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.49321900', '114.97949800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(699, 'RPPJ_RT_2-698', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.51992300', '115.00781500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(700, 'RPPJ_RT_3-699', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.49335400', '114.98010500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(701, '24-700', 'Geological Site Batu Sekis Sei Kambang Sei Kambang Schist Stone', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.51158300', '114.99952800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(702, '25-701', 'Geological Site  Bukit Matang Kaladan Matang Kaladan Panoramic View', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.52580800', '115.00941900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(703, '26-702', 'Infrastucture Site Bendungan Riam Kanan Riam Kanan Dam Lake View', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.51939700', '115.01026800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(704, '27-703', 'Geological Site Jejak Longsoran Bukit Tiwingan Tiwingan Hills Landslide', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.52293100', '115.01146000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(705, '28-704', 'Culture Site Peternakan Ikan Danau Riam Kanan Fish Farm', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.52338200', '115.01835900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(706, '29-705', 'Culture Site Rumah Panggung Tebing Danau Tiwingan Cliff Houses', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.53216700', '115.02751700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(707, '30-706', 'Natural Site Pulau Rusa Deer Island', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.53447200', '115.03184200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(708, '31-707', 'Geological Site Gunungapi Purba Bawah Laut Ancient Submarine Volcano', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.54789400', '115.03305600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(709, '32-708', 'Natural Site Pulau Bekantan Bekantan Island', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.52674400', '115.05011400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(710, '33-709', 'Nature Site Pulau Pinus Pine Island', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.53632800', '115.05396400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(711, '34-710', 'Culture Site Situs Arkeologi Pulau Sirang Sirang Island Archeological Site', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.54320800', '115.06710600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(712, '35-711', 'Nature Site Pohon Saksi Bisu Ba\'ah Ba\'ah Marker Tree', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.58898500', '115.07504800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(713, '36-712', 'Culture Site Desa Belangian Belangian Village', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.59596900', '115.06357500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(714, '37-713', 'Nature Site Hutan Hujan Tropis Kahung Kahung Tropical Rain Forest', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.63150300', '115.02745000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(715, '38-714', 'Culture Site Makam Keramat Yang Tenggelam Drowned Sacres Tomb', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.58259800', '115.07625700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(716, '39-715', 'Culture Site Pemukiman Yang Ditenggelamkan Drowned Settlement', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.58243300', '115.07633200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(717, '40-716', 'Geological Site Batupasir Pembawa Intan Diamond-Bearing Sandstone', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.56593400', '115.10417300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(718, 'RPPJ_RU_1-717', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.40327100', '114.84651600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(719, 'RPPJ_RU_2-718', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.27860400', '115.02708900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(720, 'RPPJ_RU_3-719', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.17463500', '115.07869800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(721, 'RPPJ_RU_4-720', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.15789800', '115.09649100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(722, 'RPPJ_RU_5-721', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.09543200', '115.16013800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(723, 'RPPJ_RU_6-722', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.05210300', '115.18648900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(724, 'RPPJ_RU_7-723', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.96459700', '115.14950100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(725, 'RPPJ_RU_8-724', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.94139800', '115.14857100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(726, 'RPPJ_RU_9-725', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.93245500', '115.15090900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(727, 'RPPJ_RU_10-726', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.81034800', '115.25787600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(728, 'RPPJ_RU_11-727', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.78170400', '115.27187300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(729, 'RPPJ_RU_12-728', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.78826000', '115.28006900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(730, 'RPPJ_RU_13-729', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.81963900', '115.30006100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(731, 'RPPJ_RU_14-730', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.81220400', '115.41688400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(732, 'RPPJ_RU_15-731', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.79625700', '115.45095000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(733, 'RPPJ_RU_16-732', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.79521800', '115.49412500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(734, 'RPPJ_RU_17-733', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.80385000', '115.49825300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(735, '41-734', 'Geological Site Singkapan Batubara Formasi Tanjung Coal Crop', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.29219400', '115.06811100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(736, '42-735', 'Geological Site Sejarah Tambang Oranje Nassau Historic Coal mine', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.30484700', '115.10471900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(737, '43-736', 'Intangible Site Desa Layang-Layang Dandang Dengung Buzzing Kite Village', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.94091700', '115.14783300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(738, '44-737', 'Socio Economy Sentra Dodol Kandangan Dodol Kandangan Center', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.80450000', '115.24800300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(739, '45-738', 'Geological Site Tebing Batugamping Batu Laki Batu Laki Limestone Cliff', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.86108300', '115.29963900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(740, '46-739', 'Geological Site Pemandangan Bukit Kantawan Kantawan Hill Scenic View', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.79808300', '115.45533300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(741, '47-740', 'Nature Site Arum Jeram Rakit Bambu Bamboo Rafting', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.79553100', '115.49446000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(742, '48-741', 'Geological Site Mata Air Panas Tanuhi Tanuhi Hot Spring', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.79166700', '115.45305600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(743, '49-742', 'Geological Site Air Terjun Kilat Api Kilat Api Waterfall', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.78600000', '115.45295600', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(744, '51-743', 'Geological Site Pemandangan Bukit Langara Langara Panoramic View', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-2.81138900', '115.42000000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(745, 'RRPJ_RS_1-744', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.44300200', '114.84676100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(746, 'RPPJ_RS_2-745', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.46076600', '114.84901000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(747, 'RPPJ _RS_3-746', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.46152400', '114.82687200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(748, 'RPPJ_RS_4-747', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.47951100', '114.83033200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(749, 'RPPJ_RS_5-748', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.48153700', '114.82645800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(750, 'RPPJ_RS_6-749', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.47808900', '114.81052500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(751, 'RPPJ_RS_7-750', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.46188900', '114.81086900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(752, 'RPPJ_RS_8-751', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.46179800', '114.81763500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(753, 'RPPJ_RS_9-752', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.44466200', '114.81654500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(754, 'RPPJ_RS_10-753', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.49198700', '114.93378200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(755, 'RPPJ_RS_11-754', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.50041500', '114.93090800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(756, 'RPPJ_RS_12-755', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.52863700', '114.90800400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(757, 'RPPJ_RS_13-756', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.53087500', '114.90663500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(758, 'RPPJ_RS_14-757', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.52882900', '114.90783000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(759, 'RPPJ_RS_15-758', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.49851400', '114.84823800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(760, 'RPPJ_RS_16-759', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.50198500', '114.84236200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(761, 'RPPJ_RS_17-760', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.47323900', '114.85234700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(762, 'RPPJ_RS_18-761', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.47567400', '114.85187300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(763, 'RPPJ_RS_19-762', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.47327400', '114.84169800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(764, 'RPPJ_RS_20-763', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.48300200', '114.83237200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(765, 'RPPJ_RS_21-764', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.55062200', '114.89647500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(766, 'RPPJ_RS_22-765', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.54747100', '114.89153500', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(767, 'RPPJ_RS_23-766', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.50356900', '114.82528100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(768, 'RPPJ_RS_24-767', 'Lokasi PJU', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.51195700', '114.86165300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(769, '10-768', 'Nature Site Taman Hutan Hujan Tropika Tropica Rain Forest Park', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.48110800', '114.83089700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(770, '11-769', 'Intangible Site Pembuatan Kerajinan Purun Traditional Purun Handicraft', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.50442500', '114.78476100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(771, '12-770', 'Cultural Site Kampung Jamu dan Obat Tradisional Traditional Herbal Kampong', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.44980300', '114.81748900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(772, '13-771', 'Infrastructure Site Museum Lambung Mangkurat Lambung Mangkurat Museum', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.44253100', '114.83824400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(773, '14-772', 'Infrastructure Site Pusat Informasi Geopark Geopark Information Center', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.51552500', '114.93721400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(774, '15-773', 'Natural Site Rumah Konservasi Anggrek Orchids Conservation House', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.51613900', '114.93677800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(775, '16-774', 'Natural Site Habituasi Binatang Endemik Endemic Animal Habitat', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.51471900', '114.93802900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(776, '17-775', 'Geological Site Batu Kulit Ular (Serpentinit) Snake Skin Stone', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.52398100', '114.94268300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(777, '18-776', 'Cultural Site Pesanggrahan Belanda Mandiangin Tahura Sultan Adam Ducth Historical Guesthouse', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.52366900', '114.94435300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(778, '19-777', 'Geological Site Pemandangan Puncak Tahura Sultan Adam Panoramic View of Sultan Adam Forest', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.52058300', '114.95441700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(779, '20-778', 'Intangible Site Masjid Bambu Kiram Kiram Bamboo Mosque', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.54848100', '114.89733300', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(780, '21-779', 'Intangible Site Monumen Legenda Pangeran Suryanata The Tale of Suryanata Prince Monument', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.54294400', '114.91519400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(781, '22-780', 'Geological Site Penambangan Tradisional Cempaka Cempaka Traditional Diamond Mining', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.50766700', '114.84124400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(782, '23-781', 'Socio Economy Toko Sasirangan Sasirangan Traditional Shop', 'GEOPARK MERATUS RPPJ & RAMBU SITUS', '-3.49100000', '114.85209700', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(783, 'P10TP-782', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12877603', '115.08346701', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(784, 'P11TP-783', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12859003', '115.08407403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(785, 'P12TP-784', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12856003', '115.08451902', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(786, 'P13TP-785', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12862700', '115.08502202', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(787, 'P14TP-786', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12872699', '115.08556601', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(788, 'P15TP-787', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12892296', '115.08616498', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(789, 'P16TP-788', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12917300', '115.08651802', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(790, 'P17TP-789', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12962201', '115.08672698', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(791, 'P18TP-790', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13016801', '115.08699303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(792, 'P19TP-791', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13071703', '115.08708699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(793, 'P1TP-792', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12978404', '115.07908504', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(794, 'P20TP-793', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13136101', '115.08724800', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(795, 'P21TP-794', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13418504', '115.08801696', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(796, 'P22TP-795', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13475803', '115.08824998', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(797, 'P23TP-796', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13524803', '115.08837202', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(798, 'P24TP-797', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13566101', '115.08858299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(799, 'P25TP-798', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13616401', '115.08867703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(800, 'P26TP-799', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13667304', '115.08886596', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(801, 'P27TP-800', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13716296', '115.08894802', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(802, 'P28TP-801', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13767903', '115.08914399', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(803, 'P29TP-802', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13832897', '115.08928003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(804, 'P2TP-803', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12981002', '115.07953598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(805, 'P30TP-804', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.13897002', '115.08954397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(806, 'P3TP-805', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12962897', '115.08033101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(807, 'P4TP-806', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12950299', '115.08072898', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(808, 'P5TP-807', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12941004', '115.08117598', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(809, 'P6TPX-808', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12915296', '115.08214803', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(810, 'P7TP-809', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12931004', '115.08154898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(811, 'P8TP-810', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12902003', '115.08259102', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(812, 'P9TP-811', 'Lokasi PJU', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12893000', '115.08304498', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(813, 'Titik mulai Jejak Sekarang: 05 SEP 2024 13:49-812', 'Kamis, 05 September 2024 13.49 WITA Ketinggian: 4 m', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.12996777', '115.07904757', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(814, 'Titik akhir Jejak Sekarang: 05 SEP 2024 13:49-813', 'Kamis, 05 September 2024 14.18 WITA Ketinggian: 31 m', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.14133287', '115.08999936', 'aktif', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(815, 'REV.TITIK 1-814', 'REV.1', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.15063889', '115.09658333', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(816, 'REV.TITIK 2-815', 'REV.2', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.15097222', '115.09663889', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(817, 'REV.TITIK 3-816', 'REV.3', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.16100000', '115.09458333', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(818, 'REV.TITIK 4-817', 'REV.4', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.16095310', '115.09445670', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(819, 'REV.TITIK 5-818', 'REV.5', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.16200000', '115.09450000', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(820, 'REV.TITIK 6-819', 'REV.6', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.16195710', '115.09432950', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(821, 'REV.TITIK 7-820', 'REV.7', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.16250670', '115.09402830', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(822, '01PJTS-821', '2024-03-28T03:41', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37401400', '114.83354297', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(823, '02PJTS-822', '2024-03-28T03:52', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37336499', '114.83344900', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(824, '03PJTS-823', '2024-03-28T03:55', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37268597', '114.83323904', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(825, '04PJTS-824', '2024-03-28T03:57', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37237802', '114.83296000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(826, '05PJTS-825', '2024-03-28T03:59', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37197502', '114.83255801', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(827, '07PJTS-826', '2024-03-28T04:07', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37474097', '114.83364698', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(828, '08PJTS-827', '2024-03-28T04:12', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37524497', '114.83366299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(829, '09PJTS-828', '2024-03-28T04:39', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37545301', '114.83441703', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00');
+INSERT INTO `tbl_pju` (`id`, `nama`, `lokasi`, `kecamatan`, `lat`, `lng`, `status`, `tahun`, `created_at`, `updated_at`) VALUES
+(830, '10PJTS-829', '2024-03-28T04:43', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37557999', '114.83490997', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(831, '11PJTS-830', '2024-03-28T04:44', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37569097', '114.83543401', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(832, '12PJTS-831', '2024-03-28T04:47', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37579901', '114.83604798', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(833, '13PJTS-832', '2024-03-28T04:54', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37518001', '114.83618000', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(834, '15PJTS-833', '2024-03-28T05:25', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37536701', '114.83400104', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(835, '16PJTS-834', '2024-03-28T06:13', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37370410', '114.83349660', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(836, '17PJTS-835', '2024-03-28T06:16', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.37159050', '114.83184550', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(837, 'PJ01BNDR-836', '2024-11-14T02:36', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43237703', '114.76977998', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(838, 'PJ02BNDR-837', '2024-11-14T02:39', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43211702', '114.76940699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(839, 'PJ03BNDR-838', '2024-11-14T02:41', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43181896', '114.76908403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(840, 'PJ04BNDR-839', '2024-11-14T02:42', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43152400', '114.76872001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(841, 'PJ05BNDR-840', '2024-11-14T02:44', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43098999', '114.76819304', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(842, 'PJ06BNDR-841', '2024-11-14T02:45', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43042203', '114.76767101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(843, 'PJ07BNDR-842', '2024-11-14T02:48', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42975902', '114.76701303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(844, 'PJ08BNDR-843', '2024-11-14T02:50', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42938703', '114.76664398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(845, 'PJ09BNDR-844', '2024-11-14T02:51', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42904799', '114.76632899', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(846, 'PJ10BNDR-845', '2024-11-14T02:53', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42870500', '114.76593303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(847, 'PJ11BNDR-846', '2024-11-14T02:59', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42831901', '114.76555299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(848, 'PJ12BNDR-847', '2024-11-14T03:01', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42797100', '114.76516197', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(849, 'PJ13BNDR-848', '2024-11-14T03:03', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42761703', '114.76478898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(850, 'PJ14BNDR-849', '2024-11-14T03:04', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42731503', '114.76428003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(851, 'PJ15BNDR-850', '2024-11-14T03:07', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42702300', '114.76372196', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(852, 'PJ16BNDR-851', '2024-11-14T03:09', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42678102', '114.76327202', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(853, 'PJ17BNDR-852', '2024-11-14T03:11', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42653300', '114.76281102', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(854, 'PJ18BNDR-853', '2024-11-14T03:13', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42624600', '114.76223099', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(855, 'PJ19BNDR-854', '2024-11-14T03:14', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42598599', '114.76177602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(856, 'PJ20BNDR-855', '2024-11-14T03:16', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42566798', '114.76118200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(857, 'PJ21BNDR-856', '2024-11-14T03:18', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42527999', '114.76084001', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(858, 'PJ22BNDR-857', '2024-11-14T03:19', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42489299', '114.76051102', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(859, 'PJ23BNDR-858', '2024-11-14T03:20', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42447801', '114.76014398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(860, 'PJ24BNDR-859', '2024-11-14T03:22', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42412898', '114.75976696', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(861, 'PJ25BNDR-860', '2024-11-14T03:23', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42373202', '114.75944904', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(862, 'PJ26BNDR-861', '2024-11-14T03:25', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42324704', '114.75907302', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(863, 'PJ27BNDR-862', '2024-11-14T03:27', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42273700', '114.75921904', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(864, 'PJ28BNDR-863', '2024-11-14T03:28', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42229703', '114.75938299', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(865, 'PJ29BNDR-864', '2024-11-14T03:30', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42182999', '114.75956303', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(866, 'PJ30BNDR-865', '2024-11-14T03:31', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42133001', '114.75978498', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(867, 'PJ31BNDR-866', '2024-11-14T03:32', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42086297', '114.76000803', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(868, 'PJ32BNDR-867', '2024-11-14T03:34', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42031497', '114.76024297', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(869, 'PJ33BNDR-868', '2024-11-14T03:35', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41981499', '114.76042100', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(870, 'PJ34BNDR-869', '2024-11-14T03:36', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41926304', '114.76031397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(871, 'PJ35BNDR-870', '2024-11-14T03:38', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41886297', '114.76003602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(872, 'PJ36BNDR-871', '2024-11-14T03:39', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41859098', '114.75954903', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(873, 'PJ37BNDR-872', '2024-11-14T03:40', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41837900', '114.75911602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(874, 'PJ38BNDR-873', '2024-11-14T03:41', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41812402', '114.75861202', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(875, 'PJ39BNDR-874', '2024-11-14T03:43', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41788497', '114.75813702', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(876, 'PJ40BNDR-875', '2024-11-14T03:44', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41762404', '114.75763603', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(877, 'PJ41BNDR-876', '2024-11-14T03:46', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41740301', '114.75705198', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(878, 'PJ42BNDR-877', '2024-11-14T03:47', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41724803', '114.75645200', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(879, 'PJ43BNDR-878', '2024-11-14T03:48', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41680203', '114.75618403', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(880, 'PJ44BNDR-879', '2024-11-14T03:50', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41633197', '114.75598304', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(881, 'PJ45BNDR-880', '2024-11-14T03:53', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41583299', '114.75586804', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(882, 'PJ46BNDR-881', '2024-11-14T04:15', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41538800', '114.75581003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(883, 'PJ47BNDR-882', '2024-11-14T04:16', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41472801', '114.75570601', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(884, 'PJ48BNDR-883', '2024-11-14T04:18', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41423599', '114.75560602', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(885, 'PJ49BNDR-884', '2024-11-14T04:19', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41378404', '114.75535498', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(886, 'PJ50BNDR-885', '2024-11-14T04:20', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41319404', '114.75521098', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(887, 'PJ51BNDR-886', '2024-11-14T04:21', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41265198', '114.75525599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(888, 'PJ52BNDR-887', '2024-11-14T04:22', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41217496', '114.75535003', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(889, 'PJ53BNDR-888', '2024-11-14T04:23', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41169200', '114.75548599', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(890, 'PJ54BNDR-889', '2024-11-14T04:24', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41122798', '114.75561398', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(891, 'PJ55BNDR-890', '2024-11-14T04:25', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41073797', '114.75574197', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(892, 'PJ56BNDR-891', '2024-11-14T04:26', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.41026900', '114.75585898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(893, 'PJ57BNDR-892', '2024-11-14T04:27', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40979300', '114.75597901', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(894, 'PJ58BNDR-893', '2024-11-14T04:28', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40928103', '114.75611698', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(895, 'PJ59BNDR-894', '2024-11-14T04:29', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40879899', '114.75620801', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(896, 'PJ60BNDR-895', '2024-11-14T04:30', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40826598', '114.75633197', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(897, 'PJ61BNDR-896', '2024-11-14T04:32', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40782300', '114.75641998', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(898, 'PJ62BNDR-897', '2024-11-14T04:33', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40725504', '114.75651302', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(899, 'PJ63BNDR-898', '2024-11-14T04:33', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40669102', '114.75661604', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(900, 'PJ64BNDR-899', '2024-11-14T04:35', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40600203', '114.75673699', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(901, 'PJ65BNDR-900', '2024-11-14T04:36', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40514297', '114.75687101', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(902, 'PJ66BNDR-901', '2024-11-14T04:38', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40468599', '114.75652400', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(903, 'PJ67BNDR-902', '2024-11-14T04:39', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40437904', '114.75609401', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(904, 'PJ68BNDR-903', '2024-11-14T04:40', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40411300', '114.75568397', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(905, 'PJ69BNDR-904', '2024-11-14T04:41', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40382902', '114.75526898', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(906, 'PJ70BNDR-905', '2024-11-14T04:42', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40356600', '114.75487897', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(907, 'PJ71BNDR-906', '2024-11-14T04:43', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40331303', '114.75447102', 'rusak', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(908, 'PJU-908', '-3.44086, 114.78462', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44086120', '114.78462680', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(909, 'REV.02-908', '-3.44067, 114.78447', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44067610', '114.78447020', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(910, 'REV.03-909', '-3.44048, 114.78427', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44048960', '114.78427890', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(911, 'REV.04-910', '-3.44026, 114.78405', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44026430', '114.78405940', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(912, 'REV.05-911', '-3.44003, 114.78382', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44003110', '114.78382250', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(913, 'REV.06-912', '-3.43983, 114.78362', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43983780', '114.78362840', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(914, 'REV.07-913', '-3.4396, 114.78339', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43960820', '114.78339130', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(915, 'REV.08-914', '-3.4381, 114.782', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43810710', '114.78200860', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(916, 'REV.09-915', '-3.4379, 114.7818', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43790700', '114.78180440', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(917, 'REV.10-916', '-3.43769, 114.7816', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43769930', '114.78160420', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(918, 'REV.11-917', '-3.4375, 114.78143', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43750910', '114.78143100', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(919, 'REV.12-918', '-3.43729, 114.78121', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43729000', '114.78121810', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(920, 'REV.13-919', '-3.43708, 114.78102', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43708610', '114.78102340', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(921, 'REV.14-920', '-3.43689, 114.78084', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43689040', '114.78084040', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(922, 'REV.15-921', '-3.43663, 114.78058', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43663900', '114.78058810', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(923, 'REV.16-922', '-3.43637, 114.78032', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43637460', '114.78032990', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(924, 'REV.17-923', '-3.43608, 114.78008', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43609000', '114.78008180', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(925, 'REV.18-924', '-3.43582, 114.77982', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43582820', '114.77982630', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(926, 'REV.19-925', '-3.43557, 114.77957', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43557680', '114.77957050', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(927, 'REV.20-926', '-3.43531, 114.77932', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43531280', '114.77932810', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(928, 'REV.21-927', '-3.43505, 114.77907', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43505870', '114.77907710', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(929, 'REV.22-928', '-3.43478, 114.7788', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43478410', '114.77880910', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(930, 'REV.23-929', '-3.43457, 114.77854', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43457010', '114.77854330', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(931, 'REV.24-930', '-3.43435, 114.77826', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43435890', '114.77826750', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(932, 'REV.25-931', '-3.43418, 114.77798', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43418290', '114.77798540', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(933, 'REV.26-932', '-3.43402, 114.7777', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43402050', '114.77770970', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(934, 'REV.27-933', '-3.43386, 114.77742', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43386780', '114.77742940', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(935, 'REV.28-934', '-3.43379, 114.77711', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43379330', '114.77711440', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(936, 'REV.29-935', '-3.43365, 114.77679', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43365130', '114.77679730', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(937, 'REV.30-936', '-3.43355, 114.77645', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43355620', '114.77645530', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(938, 'REV.31-937', '-3.43348, 114.77615', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43348820', '114.77615940', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(939, 'REV.32-938', '-3.43344, 114.77596', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43344530', '114.77596060', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(940, 'REV.33-939', '-3.43338, 114.7757', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43338160', '114.77570800', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(941, 'REV.34-940', '-3.43332, 114.77545', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43332840', '114.77545400', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(942, 'REV.35-941', '-3.43328, 114.77517', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43328390', '114.77517030', 'perbaikan', 2026, '2026-03-04 10:44:00', '2026-03-04 10:44:00'),
+(943, 'REV.36-942', '-3.43319, 114.77484', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43319610', '114.77484960', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(944, 'REV.37-943', '-3.43312, 114.77455', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43312210', '114.77455780', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(945, 'REV.38-944', '-3.43304, 114.77415', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43304040', '114.77416000', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(946, 'REV.39-945', '-3.43294, 114.77379', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43294660', '114.77379990', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(947, 'REV.40-946', '-3.43279, 114.77318', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43279330', '114.77318450', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(948, 'REV.41-947', '-3.43275, 114.77299', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43275400', '114.77299080', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(949, 'REV.42-948', '-3.4327, 114.77278', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43270550', '114.77278310', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(950, 'REV.43-949', '-3.43267, 114.77258', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43267290', '114.77258250', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(951, 'REV.44-950', '-3.43263, 114.77234', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43263010', '114.77234840', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(952, 'REV.45-951', '-3.43256, 114.77204', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43256980', '114.77204400', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(953, 'REV.46-952', '-3.43249, 114.77177', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43249890', '114.77177780', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(954, 'REV.47-953', '-3.43242, 114.77145', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43244810', '114.77157120', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(955, 'REV.48-954', '-3.43237, 114.77129', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43237850', '114.77129240', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(956, 'REV.49-955', '-3.44116, 114.78439', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44116050', '114.78439880', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(957, 'REV.50-956', '-3.44096, 114.7842', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44096060', '114.78420450', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(958, 'REV.51-957', '-3.44078, 114.78403', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44078020', '114.78403760', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(959, 'REV.52-958', '-3.44059, 114.78384', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44059680', '114.78384860', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(960, 'REV.53-959', '-3.4403, 114.78358', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44030990', '114.78358310', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(961, 'REV.54-960', '-3.44008, 114.78339', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.44008090', '114.78339870', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(962, 'REV.55-961', '-3.43985, 114.78318', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43985600', '114.78318860', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(963, 'REV.56-962', '-3.43842, 114.78179', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43842090', '114.78179580', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(964, 'REV.57-963', '-3.4382, 114.78159', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43820420', '114.78159190', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(965, 'REV.58-964', '-3.43799, 114.78139', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43799340', '114.78139840', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(966, 'REV.59-965', '-3.43781, 114.78121', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43781760', '114.78121210', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(967, 'REV.60-966', '-3.43758, 114.78101', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43758440', '114.78101200', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(968, 'REV.61-967', '-3.43736, 114.78078', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43736900', '114.78078730', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(969, 'REV.62-968', '-3.43717, 114.78062', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43717070', '114.78062740', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(970, 'REV.63-969', '-3.43687, 114.78035', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43687870', '114.78035900', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(971, 'REV.64-970', '-3.43661, 114.78005', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43661640', '114.78005320', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(972, 'REV.65-971', '-3.43632, 114.77976', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43632940', '114.77976930', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(973, 'REV.66-972', '-3.43612, 114.77958', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43612320', '114.77958960', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(974, 'REV.67-973', '-3.43591, 114.77939', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43591440', '114.77939110', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(975, 'REV.68-974', '-3.43561, 114.77914', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43561810', '114.77914210', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(976, 'REV.69-975', '-3.43537, 114.77888', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43537700', '114.77888850', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(977, 'REV.70-976', '-3.43513, 114.77864', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43513580', '114.77864100', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(978, 'REV.71-977', '-3.4349, 114.77839', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43490550', '114.77839520', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(979, 'REV.72-978', '-3.43468, 114.77817', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43468060', '114.77817220', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(980, 'REV.73-979', '-3.43448, 114.77789', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43448890', '114.77789050', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(981, 'REV.74-980', '-3.43428, 114.77761', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43428480', '114.77761550', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(982, 'REV.75-981', '-3.43416, 114.77737', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43416970', '114.77737410', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(983, 'REV.76-982', '-3.43405, 114.77705', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43405190', '114.77705220', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(984, 'REV.77-983', '-3.43394, 114.77674', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43394370', '114.77674800', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(985, 'REV.78-984', '-3.43385, 114.77638', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43385180', '114.77638980', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(986, 'REV.79-985', '-3.43379, 114.77608', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43379020', '114.77608770', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(987, 'REV.80-986', '-3.43373, 114.77591', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43373130', '114.77591070', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(988, 'REV.81-987', '-3.43369, 114.77565', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43369650', '114.77565980', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(989, 'REV.82-988', '-3.43363, 114.7754', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43363490', '114.77540880', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(990, 'REV.83-989', '-3.43358, 114.77512', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43358520', '114.77512420', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(991, 'REV.84-990', '-3.43353, 114.77479', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43353160', '114.77479430', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(992, 'REV.85-991', '-3.43347, 114.77451', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43347560', '114.77451130', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(993, 'REV.86-992', '-3.43342, 114.77412', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43342200', '114.77412050', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(994, 'REV.87-993', '-3.43333, 114.77374', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43333950', '114.77374710', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(995, 'REV.88-994', '-3.43331, 114.77314', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43331540', '114.77314100', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(996, 'REV.89-995', '-3.43328, 114.77293', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43328870', '114.77293710', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(997, 'REV.90-996', '-3.43328, 114.77272', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43328540', '114.77272160', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(998, 'REV.91-997', '-3.43327, 114.77253', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43327780', '114.77253730', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(999, 'REV.92-998', '-3.43329, 114.77234', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43329110', '114.77234410', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1000, 'REV.93-999', '-3.43327, 114.77206', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43327240', '114.77206110', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1001, 'REV.94-1000', '-3.43325, 114.77178', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43325290', '114.77178090', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1002, 'REV.95-1001', '-3.43322, 114.77154', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43322720', '114.77154470', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1003, 'REV.96-1002', '-3.43306, 114.77124', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43306610', '114.77124870', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1004, 'REV.97-1003', '-3.43193, 114.77054', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43193520', '114.77054770', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1005, 'REV.98-1004', '-3.43188, 114.77081', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43188150', '114.77081740', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1006, 'REV.99-1005', '-3.4316, 114.77085', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43160700', '114.77085910', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1007, 'REV.100-1006', '-3.43154, 114.77113', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43154940', '114.77113000', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1008, 'REV.101-1007', '-3.43128, 114.77117', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43128850', '114.77117350', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1009, 'REV.102-1008', '-3.43121, 114.77145', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43121510', '114.77145000', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1010, 'REV.103-1009', '-3.43088, 114.77145', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43088230', '114.77145600', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1011, 'REV.104-1010', '-3.43067, 114.77167', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43067210', '114.77167870', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1012, 'REV.105-1011', '-3.43037, 114.77156', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43037580', '114.77156060', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1013, 'REV.106-1012', '-3.43017, 114.77175', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.43017190', '114.77175040', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1014, 'REV.107-1013', '-3.42995, 114.77159', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42995040', '114.77159460', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1015, 'REV.108-1014', '-3.42973, 114.7718', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42973540', '114.77180280', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1016, 'REV.109-1015', '-3.42952, 114.77166', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42952570', '114.77166830', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1017, 'REV.110-1016', '-3.42925, 114.77187', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.42925230', '114.77187080', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1018, 'REV.111-1017', '-3.40325, 114.75408', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40325280', '114.75408680', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1019, 'REV.112-1018', '-3.4032, 114.75379', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40320810', '114.75379130', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1020, 'REV.113-1019', '-3.40318, 114.75345', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40318490', '114.75345940', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1021, 'REV.114-1020', '-3.40318, 114.75317', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40318760', '114.75317670', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1022, 'REV.115-1021', '-3.40317, 114.75291', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40317760', '114.75291160', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1023, 'REV.116-1022', '-3.40318, 114.75265', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40318100', '114.75265090', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1024, 'REV.117-1023', '-3.40317, 114.75235', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40317330', '114.75235140', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1025, 'REV.118-1024', '-3.40315, 114.75195', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40315350', '114.75195170', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1026, 'REV.119-1025', '-3.40313, 114.75156', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40313550', '114.75156800', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1027, 'REV.120-1026', '-3.40313, 114.75122', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40313000', '114.75122710', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1028, 'REV.121-1027', '-3.4031, 114.75089', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40310310', '114.75089970', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1029, 'REV.122-1028', '-3.40308, 114.75053', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40308760', '114.75053530', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1030, 'REV.123-1029', '-3.40302, 114.75011', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40302780', '114.75011520', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1031, 'REV.124-1030', '-3.40316, 114.7498', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40316570', '114.74980890', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1032, 'REV.125-1031', '-3.4033, 114.74952', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40330770', '114.74952240', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1033, 'REV.126-1032', '-3.40344, 114.74922', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40344140', '114.74922730', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1034, 'REV.127-1033', '-3.40353, 114.74899', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40353780', '114.74899120', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1035, 'REV.128-1034', '-3.40362, 114.74876', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40362080', '114.74876320', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1036, 'REV.129-1035', '-3.40371, 114.74853', 'PJU TS 2024 0.2\" DINAS PERHUBUNGAN PROV KALSEL', '-3.40371660', '114.74853960', 'perbaikan', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1037, 'PJU TS DOUBLE ARM 63-1036', '63', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44838900', '114.78022200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1038, 'PJU TS DOUBLE ARM 62-1037', '62', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44841700', '114.78055600', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1039, 'PJU TS DOUBLE ARM 61-1038', '61', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44841700', '114.78086100', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1040, 'PJU TS DOUBLE ARM 60-1039', '60', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44844400', '114.78125000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1041, 'PJU TS DOUBLE ARM 59-1040', '59', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44847200', '114.78158300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1042, 'PJU TS DOUBLE ARM 58-1041', '58', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44850000', '114.78191700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1043, 'PJU TS DOUBLE ARM 57-1042', '57', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44850000', '114.78230600', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1044, 'PJU TS DOUBLE ARM 56-1043', '56', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44855600', '114.78269400', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1045, 'PJU TS DOUBLE ARM 01-1044', '01', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44855000', '114.78305000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1046, 'PJU TS DOUBLE ARM 02-1045', '02', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44858300', '114.78341700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1047, 'PJU TS DOUBLE ARM 03-1046', '03', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44865000', '114.78376700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1048, 'PJU TS DOUBLE ARM 04-1047', '04', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44866700', '114.78413300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1049, 'PJU TS DOUBLE ARM 05-1048', '05', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44870000', '114.78446700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1050, 'PJU TS DOUBLE ARM 06-1049', '06', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44871700', '114.78485000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1051, 'PJU TS DOUBLE ARM 07-1050', '07', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44875000', '114.78520000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1052, 'PJU TS DOUBLE ARM 08-1051', '08', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44876700', '114.78556700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1053, 'PJU TS DOUBLE ARM 09-1052', '09', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44878300', '114.78591700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1054, 'PJU TS DOUBLE ARM 10-1053', '10', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44880000', '114.78628300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1055, 'PJU TS DOUBLE ARM 11-1054', '11', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44883300', '114.78666700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1056, 'PJU TS DOUBLE ARM 12-1055', '12', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44885000', '114.78700000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1057, 'PJU TS DOUBLE ARM 13-1056', '13', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44883300', '114.78735000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1058, 'PJU TS DOUBLE ARM 14-1057', '14', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44885000', '114.78771700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1059, 'PJU TS DOUBLE ARM 15-1058', '15', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44888300', '114.78810000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1060, 'PJU TS DOUBLE ARM 16-1059', '16', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44890000', '114.78846700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1061, 'PJU TS DOUBLE ARM 17-1060', '17', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44891700', '114.78881700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1062, 'PJU TS DOUBLE ARM 18-1061', '18', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44895000', '114.78918300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1063, 'PJU TS DOUBLE ARM 19-1062', '19', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44900000', '114.78953300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1064, 'PJU TS DOUBLE ARM 20-1063', '20', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44903300', '114.78986700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1065, 'PJU TS DOUBLE ARM 21-1064', '21', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44905000', '114.79026700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1066, 'PJU TS DOUBLE ARM 22-1065', '22', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44908300', '114.79063300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1067, 'PJU-1067', '23', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44910000', '114.79096700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1068, 'PJU-1068', '24', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44911700', '114.79133300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1069, 'PJU-1069', '25', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44913300', '114.79168300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1070, 'PJU-1070', '26', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44916700', '114.79206700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1071, 'PJU-1071', '27', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44920000', '114.79241700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1072, 'PJU-1072', '28', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44923300', '114.79278300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1073, 'PJU-1073', '29', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44923300', '114.79311700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1074, 'PJU-1074', '30', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44925000', '114.79350000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1075, 'PJU-1075', '31', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44928300', '114.79385000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1076, 'PJU-1076', '32', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44930000', '114.79418300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1077, 'PJU-1077', '33', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44930000', '114.79458300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1078, 'PJU-1078', '34', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44935000', '114.79503300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1079, 'PJU-1079', '35', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44936700', '114.79540000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1080, 'PJU-1080', '36', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44938300', '114.79575000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1081, 'PJU-1081', '37', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44943300', '114.79610000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1082, 'PJU-1082', '38', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44943300', '114.79648300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1083, 'PJU-1083', '39', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44945000', '114.79683300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1084, 'PJU-1084', '40', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44948300', '114.79720000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1085, 'PJU-1085', '41', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44951700', '114.79766700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1086, 'PJU-1086', '42', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44955000', '114.79835000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1087, 'PJU-1087', '43', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44958300', '114.79871700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1088, 'PJU-1088', '44', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44961700', '114.79906700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1089, 'PJU-1089', '45', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44965000', '114.79946700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1090, 'PJU-1090', '46', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44963300', '114.79985000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1091, 'PJU-1091', '47', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44966700', '114.80015000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1092, 'PJU-1092', '48', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44968300', '114.80056700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1093, 'PJU-1093', '49', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44963300', '114.80091700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01');
+INSERT INTO `tbl_pju` (`id`, `nama`, `lokasi`, `kecamatan`, `lat`, `lng`, `status`, `tahun`, `created_at`, `updated_at`) VALUES
+(1094, 'PJU-1094', '50', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44953300', '114.80130000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1095, 'PJU-1095', '51', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44936700', '114.80161700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1096, 'PJU-1096', '52', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44920000', '114.80191700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1097, 'PJU-1097', '53', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44901700', '114.80230000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1098, 'PJU-1098', '54', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44888300', '114.80261700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1099, 'PJU-1099', '55', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44865000', '114.80308300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1100, 'PJU-1100', '64', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44835800', '114.77986400', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1101, 'PJU-1101', '65', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44832700', '114.77947500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1102, 'PJU-1102', '66', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44829500', '114.77909800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1103, 'PJU-1103', '67', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44828100', '114.77872700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1104, 'PJU-1104', '68', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44825500', '114.77826700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1105, 'PJU-1105', '69', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44820500', '114.77789700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1106, 'PJU-1106', '70', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44812600', '114.77752200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1107, 'PJU-1107', '71', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44802800', '114.77714800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1108, 'PJU-1108', '72', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44791400', '114.77680500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1109, 'PJU-1109', '73', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44780400', '114.77646100', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1110, 'PJU-1110', '74', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44768600', '114.77609400', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1111, 'PJU-1111', '75', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44757800', '114.77575300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1112, 'PJU-1112', '76', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44749100', '114.77540600', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1113, 'PJU-1113', '77', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44737000', '114.77505800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1114, 'PJU-1114', '78', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44725800', '114.77469800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1115, 'PJU-1115', '79', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44714300', '114.77434400', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1116, 'PJU-1116', '80', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44704600', '114.77400800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1117, 'PJU-1117', '81', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44693300', '114.77364800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1118, 'PJU-1118', '82', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44682000', '114.77327900', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1119, 'PJU-1119', '83', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44671600', '114.77293600', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1120, 'PJU-1120', '84', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44660800', '114.77257800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1121, 'PJU-1121', '85', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44650200', '114.77224800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1122, 'PJU-1122', '86', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44639000', '114.77188200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1123, 'PJU-1123', '87', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44628000', '114.77151300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1124, 'PJU-1124', '88', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44617400', '114.77117200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1125, 'PJU-1125', '89', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44606600', '114.77081600', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1126, 'PJU-1126', '90', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44594800', '114.77045700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1127, 'PJU-1127', '91', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44585300', '114.77008500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1128, 'PJU-1128', '92', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44574000', '114.76974500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1129, 'PJU-1129', '93', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44564500', '114.76940900', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1130, 'PJU-1130', '94', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44555700', '114.76906200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1131, 'PJU-1131', '95', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44548000', '114.76871400', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1132, 'PJU-1132', '96', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44542000', '114.76834700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1133, 'PJU-1133', '97', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44536300', '114.76798500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1134, 'PJU-1134', '98', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44527700', '114.76761500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1135, 'PJU-1135', '99', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44522700', '114.76725900', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1136, 'PJU-1136', '100', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44515800', '114.76690800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1137, 'PJU-1137', '101', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44508300', '114.76654700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1138, 'PJU-1138', '102', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44503300', '114.76620200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1139, 'PJU-1139', '103', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44496000', '114.76584200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1140, 'PJU-1140', '104', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44489500', '114.76549500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1141, 'PJU-1141', '105', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44484200', '114.76515900', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1142, 'PJU-1142', '106', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44478100', '114.76482400', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1143, 'PJU-1143', '107', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44471800', '114.76446900', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1144, 'PJU-1144', '108', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44465400', '114.76410600', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1145, 'PJU-1145', '109', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44459000', '114.76377000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1146, 'PJU-1146', '110', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44451000', '114.76340400', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1147, 'Titik 111-1146', '111', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44445400', '114.76302600', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1148, 'Titik 112-1147', '112', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44437300', '114.76266700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1149, 'Titik 113-1148', '113', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44430100', '114.76230500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1150, 'Titik 114-1149', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44423500', '114.76193100', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1151, 'Titik 115-1150', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44416400', '114.76156200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1152, 'Titik 116-1151', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44412400', '114.76121300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1153, 'Titik 117-1152', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44408400', '114.76086300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1154, 'Titik 118-1153', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44404100', '114.76049500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1155, 'Titik 119-1154', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44400400', '114.76012500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1156, 'Titik 120-1155', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44396300', '114.75978000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1157, 'Titik 121-1156', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44392300', '114.75939600', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1158, 'Titik 122-1157', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44388100', '114.75901300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1159, 'Titik 123-1158', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44384800', '114.75866300', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1160, 'Titik 124-1159', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44380900', '114.75832100', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1161, 'Titik 125-1160', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44377400', '114.75793500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1162, 'Titik 126-1161', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44376500', '114.75756900', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1163, 'Titik 127-1162', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44339100', '114.75446500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1164, 'Titik 128-1163', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44335600', '114.75410200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1165, 'Titik 129-1164', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44327600', '114.75334500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1166, 'Titik 130-1165', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44323000', '114.75296200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1167, 'Titik 131-1166', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44319000', '114.75259000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1168, 'Titik 132-1167', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44315500', '114.75222100', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1169, 'Titik 133-1168', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44311400', '114.75185900', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1170, 'Titik 134-1169', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44308100', '114.75148800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1171, 'Titik 135-1170', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44304000', '114.75112900', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1172, 'Titik 136-1171', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44301100', '114.75078100', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1173, 'Titik 137-1172', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44297300', '114.75043400', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1174, 'Titik 138-1173', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44293400', '114.75006500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1175, 'Titik 139-1174', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44289800', '114.74970000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1176, 'Titik 140-1175', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44286600', '114.74932000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1177, 'Titik 141-1176', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44282900', '114.74893700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1178, 'Titik 142-1177', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44278700', '114.74856000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1179, 'Titik 143-1178', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44275500', '114.74820000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1180, 'Titik 144-1179', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44272300', '114.74784000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1181, 'Titik 145-1180', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44268300', '114.74746700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1182, 'Titik 146-1181', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44263200', '114.74711200', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1183, 'Titik 147-1182', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44256200', '114.74676800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1184, 'Titik 148-1183', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44245200', '114.74642700', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1185, 'Titik 149-1184', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44233100', '114.74607800', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1186, 'Titik 150-1185', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44219800', '114.74574000', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1187, 'Titik 151-1186', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.44205600', '114.74541400', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1188, 'PJU-1188', '-3.33572, 114.60783', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33572222', '114.60783333', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1189, 'Titik 2-1188', '-3.33588, 114.60765', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33588060', '114.60765900', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1190, 'Titik 3-1189', '-3.33614, 114.60758', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33614770', '114.60758920', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1191, 'Titik 4-1190', '-3.33999, 114.60765', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33999530', '114.60765560', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1192, 'Titik 5-1191', '-3.34031, 114.60767', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34031390', '114.60767040', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1193, 'Titik 6-1192', '-3.34066, 114.60776', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34066000', '114.60776790', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1194, 'Titik 7-1193', '-3.34102, 114.60789', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34102020', '114.60789610', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1195, 'Titik 8-1194', '-3.34133, 114.608', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34133290', '114.60800840', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1196, 'Titik 9-1195', '-3.34165, 114.60805', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34165500', '114.60805860', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1197, 'Titik 10-1196', '-3.3419, 114.6079', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34190320', '114.60790950', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1198, 'Titik 11-1197', '-3.34221, 114.60767', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34221700', '114.60767050', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1199, 'Titik 12-1198', '-3.34252, 114.60744', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34252110', '114.60744780', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1200, 'Titik 13-1199', '-3.34286, 114.6073', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34286190', '114.60730280', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1201, 'Titik 14-1200', '-3.34322, 114.60734', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34322840', '114.60734710', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1202, 'Titik 15-1201', '-3.34357, 114.60747', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34357410', '114.60747880', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1203, 'Titik 16-1202', '-3.34388, 114.60767', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34388940', '114.60767460', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1204, 'Titik 17-1203', '-3.3442, 114.60784', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34420260', '114.60784580', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1205, 'Titik 18-1204', '-3.34454, 114.60802', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34454940', '114.60802420', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1206, 'Titik 19-1205', '-3.34516, 114.60832', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34516260', '114.60832860', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1207, 'Titik 20-1206', '-3.34551, 114.6084', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34551230', '114.60840180', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1208, 'Titik 21-1207', '-3.34587, 114.60845', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34587080', '114.60845500', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1209, 'Titik 22-1208', '-3.34626, 114.60852', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34626740', '114.60852450', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1210, 'Titik 23-1209', '-3.34662, 114.60859', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34662740', '114.60859280', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1211, 'Titik 24-1210', '-3.34699, 114.60864', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34699170', '114.60864390', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1212, 'Titik 25-1211', '-3.34736, 114.60863', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34736680', '114.60863990', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1213, 'Titik 26-1212', '-3.3477, 114.60846', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34770690', '114.60846430', 'rusak', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1214, 'Titik 27-1213', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33216520', '114.61319070', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1215, 'Titik 28-1214', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33248110', '114.61257310', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1216, 'Titik 29-1215', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33266560', '114.61225560', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1217, 'Titik 30-1216', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33284900', '114.61194340', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1218, 'Titik 31-1217', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33304330', '114.61165140', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1219, 'Titik 32-1218', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33332180', '114.61143690', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1220, 'Titik 33-1219', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33362700', '114.61123170', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1221, 'Titik 34-1220', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33392160', '114.61102780', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1222, 'Titik 35-1221', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33418910', '114.61078250', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1223, 'Titik 36-1222', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33429620', '114.61040880', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1224, 'Titik 37-1223', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33439300', '114.61006050', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1225, 'Titik 38-1224', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33453890', '114.60974130', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1226, 'Titik 39-1225', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33468500', '114.60941470', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1227, 'Titik 40-1226', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33482490', '114.60909020', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1228, 'Titik 41-1227', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33500660', '114.60875640', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1229, 'Titik 42-1228', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33520200', '114.60842200', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1230, 'Titik 43-1229', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33542130', '114.60812070', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1231, 'Titik 44-1230', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33653560', '114.60769700', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1232, 'Titik 45-1231', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33690210', '114.60774890', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1233, 'Titik 46-1232', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33727470', '114.60766960', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1234, 'Titik 47-1233', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33761520', '114.60757110', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1235, 'Titik 48-1234', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33800210', '114.60757980', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1236, 'Titik 49-1235', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33837280', '114.60759850', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1237, 'Titik 50-1236', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33875190', '114.60761700', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1238, 'Titik 51-1237', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33911580', '114.60763620', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1239, 'Titik 52-1238', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.33947360', '114.60764280', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1240, 'Titik 53-1239', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34798430', '114.60822560', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1241, 'Titik 54-1240', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34867640', '114.60715410', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1242, 'Titik 55-1241', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34879420', '114.60680850', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1243, 'Titik 56-1242', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34891780', '114.60648690', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1244, 'Titik 57-1243', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34906330', '114.60614700', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1245, 'Titik 58-1244', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34919320', '114.60583450', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1246, 'Titik 59-1245', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34932830', '114.60550940', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1247, 'Titik 60-1246', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34946770', '114.60516490', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1248, 'Titik 61-1247', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34959760', '114.60481220', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1249, 'Titik 62-1248', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34973030', '114.60448670', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1250, 'Titik 63-1249', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.34985620', '114.60415940', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1251, 'Titik 64-1250', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35009520', '114.60357870', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1252, 'Titik 65-1251', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35023430', '114.60323610', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1253, 'Titik 66-1252', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35037220', '114.60289610', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1254, 'Titik 67-1253', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35048640', '114.60257790', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1255, 'Titik 68-1254', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35060670', '114.60223800', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1256, 'Titik 69-1255', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35065120', '114.60189260', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1257, 'Titik 70-1256', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35058690', '114.60153500', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1258, 'Titik 71-1257', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35050290', '114.60118340', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1259, 'Titik 72-1258', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35044670', '114.60083940', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1260, 'Titik 73-1259', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35041060', '114.60048770', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1261, 'Titik 74-1260', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35037850', '114.60015370', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1262, 'Titik 75-1261', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35035070', '114.59978140', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1263, 'Titik 76-1262', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35032450', '114.59941520', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1264, 'Titik 77-1263', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35030170', '114.59903830', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1265, 'Titik 78-1264', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35029230', '114.59866010', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1266, 'Titik 79-1265', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35030170', '114.59829710', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1267, 'Titik 80-1266', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35032230', '114.59790240', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1268, 'Titik 81-1267', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35033100', '114.59755150', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1269, 'Titik 82-1268', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35034570', '114.59719860', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1270, 'Titik 83-1269', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35036950', '114.59685500', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1271, 'Titik 84-1270', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35036670', '114.59609020', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01'),
+(1272, 'Titik 85-1271', 'Lokasi PJU', '\"PJU TS DOUBLE\" DINAS PERHUBUNGAN PROV KALSEL Tahap 2 T.A. 2024', '-3.35031930', '114.59571320', 'aktif', 2026, '2026-03-04 10:44:01', '2026-03-04 10:44:01');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_pju_rusak`
+--
+
+CREATE TABLE `tbl_pju_rusak` (
+  `id` int NOT NULL,
+  `lokasi` varchar(255) NOT NULL,
+  `wilayah` varchar(100) NOT NULL,
+  `jenis_kerusakan` varchar(150) NOT NULL,
+  `tanggal_laporan` date NOT NULL,
+  `tanggal_perbaikan` date DEFAULT NULL,
+  `status` enum('Rusak','Proses','Selesai') DEFAULT 'Rusak',
+  `petugas` varchar(100) DEFAULT NULL,
+  `keterangan` text,
+  `lat` decimal(10,8) DEFAULT NULL,
+  `lng` decimal(11,8) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `tbl_pju_rusak`
+--
+
+INSERT INTO `tbl_pju_rusak` (`id`, `lokasi`, `wilayah`, `jenis_kerusakan`, `tanggal_laporan`, `tanggal_perbaikan`, `status`, `petugas`, `keterangan`, `lat`, `lng`, `created_at`) VALUES
+(1, 'Jl. Ahmad Yani Km 34', 'Banjarbaru', 'Lampu Mati Total', '2024-05-10', NULL, 'Rusak', NULL, 'Tiang nomor 14', '-3.44020000', '114.83290000', '2026-03-05 02:04:07'),
+(2, 'Jl. Pangeran Antasari', 'Banjarmasin', 'Kabel Putus', '2024-05-12', '2024-05-14', 'Proses', 'Tim Teknisi 2', 'Dekat pasar', '-3.32620000', '114.60120000', '2026-03-05 02:04:07'),
+(3, 'Jl. Trikora', 'Banjarbaru', 'Tiang Miring', '2024-05-01', '2024-05-05', 'Selesai', 'Rudi H.', 'Tertabrak mobil', '-3.44750000', '114.81180000', '2026-03-05 02:04:07'),
+(4, 'Jl. Hasan Basri', 'Banjarmasin', 'Lampu Berkedip', '2024-05-15', NULL, 'Rusak', NULL, 'Depan kampus ULM', '-3.29850000', '114.58750000', '2026-03-05 02:04:07'),
+(5, 'Jl. Gubernur Syarkawi', 'Barito Kuala', 'Panel Konslet', '2024-05-10', '2024-05-16', 'Selesai', 'Tim Teknisi 1', 'Sering jeglek', '-3.27540000', '114.64320000', '2026-03-05 02:04:07'),
+(6, 'Jl. Veteran', 'Banjarmasin', 'Kaca Pecah', '2024-04-20', '2024-04-22', 'Selesai', 'Budi S.', 'Batu lemparan', '-3.32010000', '114.60520000', '2026-03-05 02:04:07'),
+(7, 'Jl. A. Yani Km 14', 'Gambut', 'Lampu Mati', '2024-05-18', NULL, 'Rusak', NULL, '', '-3.39120000', '114.66440000', '2026-03-05 02:04:07'),
+(8, 'Simpang 4 Banjarbaru', 'Banjarbaru', 'Lampu Merah Mati', '2024-05-19', '2024-05-19', 'Proses', 'Agus', 'Tingkat urgent tinggi', '-3.44220000', '114.81550000', '2026-03-05 02:04:07'),
+(9, 'Jl. Gubernur Syarkawi', 'Barito Kuala', 'lampu mati', '2026-03-05', NULL, 'Selesai', '', '', '-3.27540000', '114.64320000', '2026-03-05 04:06:13');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_tilang`
+--
+
+CREATE TABLE `tbl_tilang` (
+  `id` int NOT NULL,
+  `lokasi` varchar(255) NOT NULL,
+  `wilayah` varchar(100) NOT NULL,
+  `jenis_pelanggaran` varchar(100) NOT NULL,
+  `tanggal` date NOT NULL,
+  `keterangan` text,
+  `lat` decimal(10,8) DEFAULT NULL,
+  `lng` decimal(11,8) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `tbl_tilang`
+--
+
+INSERT INTO `tbl_tilang` (`id`, `lokasi`, `wilayah`, `jenis_pelanggaran`, `tanggal`, `keterangan`, `lat`, `lng`, `created_at`) VALUES
+(1, 'JALAN AHMAD YANI', 'BANJARMASIN TIMUR', 'LAWAN ARUS', '2026-03-04', 'JANGAN ULANGI', '-3.32448446', '114.59238944', '2026-03-04 11:04:41'),
+(2, 'Jl. Brigjen H. Hasan Basri', 'Brigjen H. Hasan Basri', 'Buku Uji KIR Mati', '2024-01-01', 'Pelanggar: Budi Santoso, Kendaraan: Truk Bak Terbuka (DA 8123 AB), Pasal: 288 ayat (3)', '-3.29850000', '114.58750000', '2026-03-05 01:46:48'),
+(3, 'Jalan Ahmad Yani Km. 4', 'Jalan Ahmad Yani Km. 4', 'Over Dimensi / Muatan', '2024-01-01', 'Pelanggar: Agus Salim, Kendaraan: Pick Up (DA 9012 XY), Pasal: 307', '-3.32800000', '114.60600000', '2026-03-05 01:46:48'),
+(4, 'Ds. Alalak Utara', 'Alalak Utara', 'Tanpa TNKB, KIR Mati, Over Muatan', '2023-01-01', 'Pelanggar: CV. Maju Jaya, Kendaraan: Truk Tronton (DA 7654 ZQ), Pasal: 280, 288(3), 307', '-3.28400000', '114.58200000', '2026-03-05 01:46:48'),
+(5, 'Jl. Lingkar Dalam Selatan', 'Lingkar Dalam Selatan', 'Buku Uji KIR Palsu', '2024-01-01', 'Pelanggar: PT. Sentosa Bersama, Kendaraan: Truk Box (B 9876 CD), Pasal: 288 ayat (3)', '-3.34400000', '114.61100000', '2026-03-05 01:46:48'),
+(6, 'Terminal Gambut Barakat', 'Terminal Gambut Barakat', 'Kelebihan Dimensi Penumpang', '2024-01-01', 'Pelanggar: Sutrisno, Kendaraan: Minibus Travel (DA 1122 QQ), Pasal: 277', '-3.36400000', '114.63200000', '2026-03-05 01:46:48'),
+(7, 'Jalan Trikora', 'Jalan Trikora', 'Over Muatan', '2023-01-01', 'Pelanggar: Bambang W., Kendaraan: Truk FUSO (DA 4433 RS), Pasal: 307', '-3.42100000', '114.81200000', '2026-03-05 01:46:48'),
+(8, 'Psr. Antasari', 'Psr. Antasari', 'Buku Uji KIR Habis Masa Berlaku', '2024-01-01', 'Pelanggar: Wahyudi, Kendaraan: Pick Up Sayur (DA 8821 WW), Pasal: 288 ayat (3)', '-3.32300000', '114.59700000', '2026-03-05 01:46:48'),
+(9, 'Jalan Veteran', 'Jalan Veteran', 'KIR Mati, Pelanggaran Rambu', '2024-01-01', 'Pelanggar: Tatang S, Kendaraan: Truk Engkel (DA 7171 RR), Pasal: 288(3), 287(1)', '-3.32000000', '114.60500000', '2026-03-05 01:46:48'),
+(10, 'Pelabuhan Trisakti', 'Pelabuhan Trisakti', 'Over Dimensi dan Plat Nomor Kabur', '2024-01-01', 'Pelanggar: Ridho Akbar, Kendaraan: Tronton Pasir (DA 9988 TT), Pasal: 277, 280', '-3.32500000', '114.55800000', '2026-03-05 01:46:48'),
+(11, 'Jl. Gubernur Syarkawi', 'Gubernur Syarkawi', 'Muatan Berlebih', '2023-01-01', 'Pelanggar: CV. Abadi, Kendaraan: Truk Dump (DA 5544 BB), Pasal: 307', '-3.27500000', '114.64300000', '2026-03-05 01:46:48'),
+(12, 'Jl. Sutoyo S', 'Sutoyo S', 'KIR Tidak Berlaku', '2024-01-01', 'Pelanggar: Anto Sutanto, Kendaraan: Mobil Barang Box (DA 3322 VC), Pasal: 288 ayat (3)', '-3.32200000', '114.58000000', '2026-03-05 01:46:48'),
+(13, 'Perbatasan Batola - Kapuas', 'Perbatasan Batola - Kapuas', 'Surat Jalan Tidak Ada & Over Dimensi', '2024-01-01', 'Pelanggar: Sari Logistik, Kendaraan: Truk Gandeng (L 9192 JJ), Pasal: 307', '-3.12000000', '114.47000000', '2026-03-05 01:46:48'),
+(14, 'Jl. Pangeran Antasari', 'Pangeran Antasari', 'KIR Retak/Rusak', '2023-01-01', 'Pelanggar: Umar, Kendaraan: Colt Diesel (DA 6655 PP), Pasal: 288', '-3.32600000', '114.60100000', '2026-03-05 01:46:48'),
+(15, 'Jl. P.M. Noor', 'P.M. Noor', 'Muatan Batubara Melebihi Bak', '2024-01-01', 'Pelanggar: Joko Susilo, Kendaraan: Truk Canter (DA 2456 LK), Pasal: 307', '-3.40200000', '114.86200000', '2026-03-05 01:46:48'),
+(16, 'Jalan Belitung Darat', 'Jalan Belitung Darat', 'Buku KIR Mati 2 Tahun', '2022-01-01', 'Pelanggar: Samsul, Kendaraan: Mobil Barang Pick Up (DA 8812 NN), Pasal: 288', '-3.31000000', '114.58100000', '2026-03-05 01:46:48'),
+(17, 'Gambut, Jln A. Yani Km 14', 'Gambut', 'Over Dimensi', '2024-01-01', 'Pelanggar: Bintang Cargo, Kendaraan: Truk Fuso Box (DA 9811 FG), Pasal: 277', '-3.39100000', '114.66400000', '2026-03-05 01:46:48'),
+(18, 'Jl. HKSN', 'HKSN', 'KIR Mati, Tidak Bawa SIM', '2024-01-01', 'Pelanggar: Jaya Express, Kendaraan: Mobil Box Kecil (DA 1121 KM), Pasal: 288(3), 281', '-3.29500000', '114.58600000', '2026-03-05 01:46:48'),
+(19, 'Simpang Empat Banjarbaru', 'Simpang Empat Banjarbaru', 'Dimensi Bak Modifikasi', '2022-01-01', 'Pelanggar: Rudy R, Kendaraan: Truk Engkel Terbuka (DA 5521 TY), Pasal: 277', '-3.44200000', '114.81500000', '2026-03-05 01:46:48'),
+(20, 'Jembatan Barito', 'Jembatan Barito', 'KIR Mati & Over Muatan Kayu', '2024-01-01', 'Pelanggar: Gatot, Kendaraan: Tronton Kayu (DA 4421 BV), Pasal: 288, 307', '-3.22000000', '114.56500000', '2026-03-05 01:46:48'),
+(21, 'Jalan Trikora Pelaihari', 'Jalan Trikora Pelaihari', 'Over Dimensi Lebar', '2023-01-01', 'Pelanggar: PT. Surya Bumi, Kendaraan: Lowboy (B 9911 YZ), Pasal: 277', '-3.43500000', '114.82100000', '2026-03-05 01:46:48');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_wilayah_prioritas`
+--
+
+CREATE TABLE `tbl_wilayah_prioritas` (
+  `id` int NOT NULL,
+  `wilayah` varchar(255) NOT NULL,
+  `kecamatan` varchar(255) NOT NULL,
+  `kabupaten` varchar(255) NOT NULL,
+  `status_pju` varchar(50) NOT NULL,
+  `tingkat_prioritas` varchar(50) NOT NULL,
+  `lat` decimal(10,8) DEFAULT NULL,
+  `lng` decimal(11,8) DEFAULT NULL,
+  `keterangan` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `tbl_wilayah_prioritas`
+--
+
+INSERT INTO `tbl_wilayah_prioritas` (`id`, `wilayah`, `kecamatan`, `kabupaten`, `status_pju`, `tingkat_prioritas`, `lat`, `lng`, `keterangan`, `created_at`) VALUES
+(1, 'Desa Paramasan Bawah', 'Paramasan', 'Kabupaten Banjar', 'Tidak Ada', 'Tinggi', '-3.05670000', '115.31200000', 'Akses jalan hutan yang gelap gulita di malam hari, rawan kriminalitas.', '2026-03-05 13:16:22'),
+(2, 'Desa Angkipih', 'Paramasan', 'Kabupaten Banjar', 'Tidak Ada', 'Tinggi', '-3.07890000', '115.34000000', 'Jalan penghubung antar desa belum ada penerangan sama sekali.', '2026-03-05 13:16:22'),
+(3, 'Desa Sungai Pinang', 'Sungai Pinang', 'Kabupaten Banjar', 'Tidak Ada', 'Sedang', '-3.09010000', '115.11220000', 'Pertigaan utama desa minim cahaya, sering terjadi laka lantas.', '2026-03-05 13:16:22'),
+(4, 'Desa Juhu', 'Batang Alai Timur', 'Hulu Sungai Tengah', 'Tidak Ada', 'Tinggi', '-2.62010000', '115.54100000', 'Desa di pegunungan meratus, sangat terisolir dan sama sekali tidak ada tiang PJU.', '2026-03-05 13:16:22'),
+(5, 'Desa Aing Bantai', 'Batang Alai Timur', 'Hulu Sungai Tengah', 'Tidak Ada', 'Tinggi', '-2.59010000', '115.52000000', 'Akses jalan tebing rawan longsor tanpa penerangan malam.', '2026-03-05 13:16:22'),
+(6, 'Desa Muara Uya', 'Muara Uya', 'Tabalong', 'Tidak Ada', 'Sedang', '-1.82010000', '115.61000000', 'Perbatasan provinsi yang masih sepi dari infrastruktur penerangan.', '2026-03-05 13:16:22');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` varchar(36) NOT NULL DEFAULT (uuid()),
+  `email` varchar(255) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_active` tinyint(1) DEFAULT '1',
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_expires` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `email`, `password_hash`, `created_at`, `is_active`, `reset_token`, `reset_expires`) VALUES
+('2d6e44dd-1698-11f1-b509-088fc387a463', 'dishupllj001@gmail.com', '$2y$10$21COy0K4AVjN1wId0263pOPGYqRphxXEvZGNTry.uDobReems8iz2', '2026-03-03 00:30:27', 1, NULL, NULL),
+('ba7eefe6-18d7-11f1-ab29-088fc387a463', 'seidirahmat007@gmail.com', '$2y$10$o1YsbdPM8X2kd.gTX62Qo.j5/5.Styp9itpIsRAdP1y8FkOyqfJ.q', '2026-03-05 21:10:25', 1, NULL, NULL),
+('ed1d0200-1690-11f1-ac09-088fc387a463', 'admin@dishup.com', '$2y$10$MRUJVVlozqnZ02EjsIE8leFtgyqN1Wcbb9oe.TlxXyaqWPB2M8jwq', '2026-03-02 23:38:33', 1, NULL, NULL);
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `dokumen`
+--
+ALTER TABLE `dokumen`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_dokumen_uploaded_by` (`uploaded_by`);
+
+--
+-- Indexes for table `files`
+--
+ALTER TABLE `files`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_files_user_id` (`user_id`);
+
+--
+-- Indexes for table `izin_files`
+--
+ALTER TABLE `izin_files`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_izin_files_file_id` (`file_id`);
+
+--
+-- Indexes for table `laporan_surat`
+--
+ALTER TABLE `laporan_surat`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_laporan_surat_dibuat_oleh` (`dibuat_oleh`);
+
+--
+-- Indexes for table `permintaan_akses_files`
+--
+ALTER TABLE `permintaan_akses_files`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_permintaan_file_id` (`file_id`);
+
+--
+-- Indexes for table `profiles`
+--
+ALTER TABLE `profiles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `surat_permohonan`
+--
+ALTER TABLE `surat_permohonan`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_sp_dibuat_oleh` (`dibuat_oleh`);
+
+--
+-- Indexes for table `surat_tugas`
+--
+ALTER TABLE `surat_tugas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_st_dibuat_oleh` (`dibuat_oleh`);
+
+--
+-- Indexes for table `surat_undangan`
+--
+ALTER TABLE `surat_undangan`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_su_dibuat_oleh` (`dibuat_oleh`);
+
+--
+-- Indexes for table `tbl_log_aktivitas`
+--
+ALTER TABLE `tbl_log_aktivitas`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `tbl_pju`
+--
+ALTER TABLE `tbl_pju`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `tbl_pju_rusak`
+--
+ALTER TABLE `tbl_pju_rusak`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `tbl_tilang`
+--
+ALTER TABLE `tbl_tilang`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `tbl_wilayah_prioritas`
+--
+ALTER TABLE `tbl_wilayah_prioritas`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `laporan_surat`
+--
+ALTER TABLE `laporan_surat`
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `surat_permohonan`
+--
+ALTER TABLE `surat_permohonan`
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `surat_tugas`
+--
+ALTER TABLE `surat_tugas`
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `surat_undangan`
+--
+ALTER TABLE `surat_undangan`
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tbl_log_aktivitas`
+--
+ALTER TABLE `tbl_log_aktivitas`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `tbl_pju`
+--
+ALTER TABLE `tbl_pju`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1273;
+
+--
+-- AUTO_INCREMENT for table `tbl_pju_rusak`
+--
+ALTER TABLE `tbl_pju_rusak`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `tbl_tilang`
+--
+ALTER TABLE `tbl_tilang`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT for table `tbl_wilayah_prioritas`
+--
+ALTER TABLE `tbl_wilayah_prioritas`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `dokumen`
+--
+ALTER TABLE `dokumen`
+  ADD CONSTRAINT `fk_dokumen_uploaded_by` FOREIGN KEY (`uploaded_by`) REFERENCES `profiles` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `files`
+--
+ALTER TABLE `files`
+  ADD CONSTRAINT `fk_files_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `izin_files`
+--
+ALTER TABLE `izin_files`
+  ADD CONSTRAINT `fk_izin_files_file_id` FOREIGN KEY (`file_id`) REFERENCES `files` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `laporan_surat`
+--
+ALTER TABLE `laporan_surat`
+  ADD CONSTRAINT `fk_laporan_surat_dibuat_oleh` FOREIGN KEY (`dibuat_oleh`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `permintaan_akses_files`
+--
+ALTER TABLE `permintaan_akses_files`
+  ADD CONSTRAINT `fk_permintaan_file_id` FOREIGN KEY (`file_id`) REFERENCES `files` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `profiles`
+--
+ALTER TABLE `profiles`
+  ADD CONSTRAINT `fk_profiles_user` FOREIGN KEY (`id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `surat_permohonan`
+--
+ALTER TABLE `surat_permohonan`
+  ADD CONSTRAINT `fk_sp_dibuat_oleh` FOREIGN KEY (`dibuat_oleh`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `surat_tugas`
+--
+ALTER TABLE `surat_tugas`
+  ADD CONSTRAINT `fk_st_dibuat_oleh` FOREIGN KEY (`dibuat_oleh`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `surat_undangan`
+--
+ALTER TABLE `surat_undangan`
+  ADD CONSTRAINT `fk_su_dibuat_oleh` FOREIGN KEY (`dibuat_oleh`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

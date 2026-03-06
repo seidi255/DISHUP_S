@@ -123,7 +123,9 @@ switch ($action) {
                                 "user_metadata" => [
                                     "nama" => $profile['nama'] ?? '',
                                     "role" => $profile['role'] ?? 'user',
-                                    "foto" => $profile['foto'] ?? null
+                                    "foto" => $profile['foto'] ?? null,
+                                    "no_telepon" => $profile['no_telepon'] ?? '',
+                                    "jabatan" => $profile['jabatan'] ?? ''
                                 ]
                             ]
                         ],
@@ -162,7 +164,7 @@ switch ($action) {
                 try {
                     // Ambil gabungan user dan profile
                     $stmt = $pdo->prepare("
-                        SELECT u.id, u.email, p.nama, p.role, p.foto 
+                        SELECT u.id, u.email, p.nama, p.role, p.foto, p.no_telepon, p.jabatan 
                         FROM users u 
                         LEFT JOIN profiles p ON u.id = p.id 
                         WHERE u.id = ?
@@ -180,7 +182,9 @@ switch ($action) {
                                     "user_metadata" => [
                                         "nama" => $user_data['nama'],
                                         "role" => $user_data['role'],
-                                        "foto" => $user_data['foto']
+                                        "foto" => $user_data['foto'],
+                                        "no_telepon" => $user_data['no_telepon'],
+                                        "jabatan" => $user_data['jabatan']
                                     ]
                                 ]
                             ]
@@ -188,6 +192,44 @@ switch ($action) {
                     } else {
                         http_response_code(404);
                         echo json_encode(["status" => "error", "message" => "User not found"]);
+                    }
+                } catch (PDOException $e) {
+                    http_response_code(500);
+                    echo json_encode(["status" => "error", "message" => "Database error: " . $e->getMessage()]);
+                }
+            } else {
+                http_response_code(401);
+                echo json_encode(["status" => "error", "message" => "Invalid or expired token"]);
+            }
+        } else {
+            http_response_code(401);
+            echo json_encode(["status" => "error", "message" => "Authorization header missing"]);
+        }
+        break;
+
+    case 'update_profile':
+        $headers = function_exists('apache_request_headers') ? apache_request_headers() : $_SERVER;
+        $auth_header = isset($headers['Authorization']) ? $headers['Authorization'] : (isset($headers['authorization']) ? $headers['authorization'] : '');
+
+        if (preg_match('/Bearer\s(\S+)/', $auth_header, $matches)) {
+            $token = $matches[1];
+            $decoded = json_decode(base64_decode($token), true);
+
+            if ($decoded && isset($decoded['id']) && $decoded['exp'] > time()) {
+                $user_id = $decoded['id'];
+
+                $nama = $data->nama ?? '';
+                $foto = $data->foto ?? null;
+                $no_telepon = $data->no_telepon ?? null;
+                $jabatan = $data->jabatan ?? null;
+
+                try {
+                    $stmt = $pdo->prepare("UPDATE profiles SET nama = ?, foto = ?, no_telepon = ?, jabatan = ? WHERE id = ?");
+                    if ($stmt->execute([$nama, $foto, $no_telepon, $jabatan, $user_id])) {
+                        echo json_encode(["status" => "success", "message" => "Profile updated successfully"]);
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(["status" => "error", "message" => "Failed to update profile"]);
                     }
                 } catch (PDOException $e) {
                     http_response_code(500);

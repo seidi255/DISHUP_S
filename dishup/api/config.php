@@ -1,9 +1,11 @@
 <?php
+date_default_timezone_set('Asia/Makassar'); // WITA (+08:00) untuk mencocokkan datetime lokal
+
 // Konfigurasi Database
-$host     = "localhost";
+$host = "localhost";
 $username = "root";
 $password = ""; // Default Laragon tidak ada password
-$dbname   = "db_dishup";
+$dbname = "db_dishup";
 
 // Atur header CORS agar file PHP bisa diakses oleh React (biasanya jalan di localhost:5173 / localhost:3000)
 header("Access-Control-Allow-Origin: *");
@@ -19,7 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 try {
     // Membuat koneksi ke MySQL menggunakan PDO
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    
+
+    // Sinkronisasi timezone MySQL dengan zona waktu +08:00
+    $pdo->exec("SET time_zone = '+08:00'");
+
     // Set error mode menjadi Exception agar mudah di-debug
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     // Kembalikan data dalam bentuk associatiave array secara default
